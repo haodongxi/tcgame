@@ -1,0 +1,6 @@
+# Created by haodongsheng
+.DS_Store
+node_modules/
+dist/
+.env
+.env.*
