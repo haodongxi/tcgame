@@ -68,6 +68,22 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .node.done button { background: var(--cinnabar); color: white; }
 .node.active button { background: var(--gold-light); box-shadow: 0 0 0 4px rgba(168,59,44,.18); }
 .node small { display: block; margin-top: 7px; color: #6b5b42; font-size: 12px; }
+.route-heading { color: #765221; text-align: center; margin: 28px 0 12px; }
+.route-options, .choice-list { display: grid; gap: 10px; }
+.route-option { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 13px 15px; border: 1px solid rgba(118,82,33,.35); border-radius: 5px; background: rgba(255,250,235,.72); color: #382718; text-align: left; transition: .18s; }
+.route-option:hover { transform: translateX(3px); border-color: var(--cinnabar); background: #fff8e6; }
+.route-option b { display: block; font-size: 16px; }
+.route-option small { display: block; margin-top: 4px; color: #75664f; line-height: 1.45; }
+.route-mark { display: grid; place-items: center; flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; background: #302b23; border: 1px solid var(--gold); color: var(--gold-light); font-weight: 700; }
+.node-page > p { color: #554b3b; line-height: 1.8; text-align: center; }
+.shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+.shop-offer { display: grid; justify-items: center; gap: 7px; padding: 13px 9px; border: 1px solid #b48b42; border-radius: 5px; background: linear-gradient(155deg, #f8edd2, #d8c398); color: #382718; text-align: center; }
+.shop-offer:hover { transform: translateY(-2px); }
+.shop-offer small { font-size: 11px; line-height: 1.4; }
+.shop-offer em { color: #9a3728; font-style: normal; font-weight: 700; }
+.remove-list { display: flex; flex-wrap: wrap; gap: 7px; max-height: 160px; overflow: auto; padding: 4px; }
+.remove-card { padding: 7px 9px; border: 1px solid rgba(118,82,33,.28); border-radius: 999px; background: rgba(255,250,235,.75); color: #55452f; font-size: 12px; }
+.remove-card span { color: #9a3728; margin-left: 4px; }
 
 .battle-screen { display: grid; grid-template-rows: auto minmax(190px, 1fr) auto auto; gap: 10px; padding-bottom: 10px; }
 .enemy-bar, .player-panel { border-radius: 4px; }
@@ -145,6 +161,10 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .intent { grid-column: 1 / -1; text-align: left; border-top: 1px solid rgba(212,166,78,.25); padding-top: 8px; }
   .reward-grid { grid-template-columns: 1fr; }
   .reward-grid .card { min-height: 100px; }
+  .shop-grid { grid-template-columns: 1fr; }
+  .shop-offer { grid-template-columns: auto 1fr auto; justify-items: start; text-align: left; align-items: center; }
+  .shop-offer small { grid-column: 2 / -1; }
+  .shop-offer em { grid-column: 2 / -1; }
   .battle-screen { gap: 8px; }
   .log-panel { padding: 14px; }
   .log-panel h2 { font-size: 18px; }
