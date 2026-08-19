@@ -11,15 +11,18 @@
   --green: #7db07e;
 }
 
+html { min-width: 320px; background: var(--ink); }
 * { box-sizing: border-box; }
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100%;
+  overflow-x: hidden;
   background: var(--ink);
   color: var(--paper);
   font-family: "Songti SC", "Noto Serif SC", Georgia, serif;
 }
-button { font: inherit; cursor: pointer; }
+button { font: inherit; cursor: pointer; touch-action: manipulation; }
 button:disabled { cursor: not-allowed; opacity: .42; }
 
 .game-shell {
@@ -29,7 +32,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   overflow: hidden;
 }
 .game-shell::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 30%, transparent 0 24%, rgba(12,11,9,.3) 78%); pointer-events: none; }
-.screen { position: relative; z-index: 1; width: min(100%, 760px); min-height: 100dvh; margin: auto; padding: 18px clamp(14px, 3vw, 30px) 24px; }
+.screen { position: relative; z-index: 1; width: min(100%, 760px); min-height: 100dvh; margin: auto; padding: max(18px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brand { letter-spacing: .16em; color: var(--gold-light); font-weight: 700; font-size: clamp(18px, 4vw, 27px); text-shadow: 0 2px 0 #000; }
 .resources { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -104,7 +107,35 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .reward-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .reward-grid .card { width: 100%; }
 
+/* Desktop: use the extra width for breathing room without turning the game into a stretched dashboard. */
+@media (min-width: 900px) {
+  .game-shell { background-attachment: fixed; }
+  .screen { width: min(100% - 48px, 1080px); padding: 28px 0 40px; }
+  .battle-screen { grid-template-rows: auto minmax(300px, 42vh) auto auto; gap: 14px; }
+  .enemy-bar { padding: 16px 20px; }
+  .log-panel { padding: 22px 28px; }
+  .log-line { font-size: 15px; padding: 9px 0; }
+  .player-panel { padding: 16px 20px; }
+  .player-panel .avatar { width: 68px; height: 68px; font-size: 30px; }
+  .card { flex-basis: 116px; min-height: 164px; padding: 10px; }
+  .card-art { font-size: 36px; padding: 18px 0 10px; }
+  .card strong { font-size: 16px; }
+  .card small { font-size: 12px; }
+  .map-card, .result-card { width: min(100%, 820px); margin-left: auto; margin-right: auto; }
+  .hero-grid { gap: 18px; }
+  .hero-card { padding: 20px; }
+  .hero-mark { width: 72px; height: 72px; font-size: 30px; }
+}
+
 @media (max-width: 560px) {
+  .game-shell { background-attachment: scroll; }
+  .screen { padding-top: max(12px, env(safe-area-inset-top)); }
+  .topbar { align-items: flex-start; }
+  .brand { font-size: 18px; }
+  .resource { padding: 5px 8px; font-size: 12px; }
+  .title { margin-top: 9vh; }
+  .title h1 { letter-spacing: .1em; }
+  .intro-panel { padding: 18px 16px; }
   .hero-grid { grid-template-columns: 1fr; }
   .hero-card { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; }
   .hero-mark { grid-row: span 2; margin: 0; }
@@ -114,4 +145,12 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .intent { grid-column: 1 / -1; text-align: left; border-top: 1px solid rgba(212,166,78,.25); padding-top: 8px; }
   .reward-grid { grid-template-columns: 1fr; }
   .reward-grid .card { min-height: 100px; }
+  .battle-screen { gap: 8px; }
+  .log-panel { padding: 14px; }
+  .log-panel h2 { font-size: 18px; }
+  .log-line { font-size: 13px; }
+  .player-heading { font-size: 17px; }
+  .battle-actions { align-items: stretch; }
+  .turn { max-width: 58%; line-height: 1.35; }
+  .battle-actions .primary { flex: 0 0 auto; padding-inline: 16px; }
 }
