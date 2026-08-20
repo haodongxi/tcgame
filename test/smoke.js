@@ -443,6 +443,12 @@ run('自用卡牌预览提供使用按钮，攻击牌预览提示选择敌人', 
   assert.doesNotMatch(result.enemy, /data-action="use-card"/);
 });
 
+run('出牌或切换卡牌时详情浮层与手牌状态一起刷新', () => {
+  assert.match(appSource, /currentHandPanel\.innerHTML\s*=\s*nextHandPanel\.innerHTML/);
+  assert.match(appSource, /currentHandPanel && nextHandPanel/);
+  assert.match(appSource, /bind\(\);\s*scrollBattleLogToBottom\(\);/);
+});
+
 run('卡牌预览是轻量浮层，不参与战斗布局', () => {
   assert.match(indexSource, /name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/);
   assert.match(stylesSource, /@media \(max-width:\s*560px\)/);

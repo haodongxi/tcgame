@@ -258,7 +258,7 @@ function playCard(index) { const s = state.battle; const id = s.hand[index]; con
 function selectTarget(index) { const s = state.battle; if (!s?.enemies?.[index] || s.enemies[index].hp <= 0) return; s.targetIndex = index; s.enemy = s.enemies[index]; refreshSelectionVisuals(); }
 function handleTargetClick(index, event) { event.stopPropagation(); if (state.selectedIndex === null || !cardNeedsEnemy(cards[state.selectedCard])) return; selectTarget(index); confirmTarget(); }
 function confirmTarget() { if (state.selectedIndex === null || state.busy) return; const index = state.selectedIndex; state.busy = true; document.querySelector(`.hand [data-index="${index}"]`)?.classList.add('is-playing'); window.setTimeout(() => resolvePlayCard(index), 220); }
-function resolvePlayCard(index) { const s = state.battle; const id = s.hand[index]; const card = cards[id]; if (!card || (cardNeedsEnemy(card) && s.targetIndex === null) || !s.enemy || s.enemy.hp <= 0) { state.busy = false; cancelSelection(); refreshBattleParts(); return; } s.energy -= card.cost; s.hand.splice(index, 1); s.discard.push(id); if (state.heroId === 'zhugeliang' && card.strategy) { s.player.mystery = Math.min(mysteryCap(), s.player.mystery + 1); log(`神机：计策牌触发，当前 ${s.player.mystery}/${mysteryCap()} 层。`); } card.effect(s); markEnemyDefeats(s); s.player.played++; if (card.type === 'attack') { s.player.attackCardsPlayed++; const threshold = s.player.thousandBlades ? 2 : 3; if (s.player.attackCardsPlayed >= threshold && !s.hand.includes('fangFinisher')) { s.player.attackCardsPlayed = 0; s.hand.push('fangFinisher'); log('裂牙补刀：攻击牌连段完成，生成 1 张裂牙补刀。'); } } if (state.heroId === 'zhaoyun') { s.player.dragon = (s.player.dragon + 1) % 3; if (s.player.dragon === 0) { hit(s, 40); log('龙胆连击：追加 40 伤害。'); } } if (s.enemy.hp <= 0) { log(`${s.enemy.name}已被击破。`); syncTarget(s); } if (!s.enemies.some(enemy => enemy.hp > 0)) state.reward = { type: s.enemyIndex === 1 ? 'relic' : s.enemyIndex === 2 ? 'boss-card' : 'card' }; s.targetIndex = null; s.enemy = s.enemies.find(enemy => enemy.hp > 0) || s.enemy; state.busy = false; state.selectedCard = null; state.selectedIndex = null; state.animateDeal = false; state.reward ? render() : refreshBattleParts({ keepHand: true, removedIndex: index }); }
+function resolvePlayCard(index) { const s = state.battle; const id = s.hand[index]; const card = cards[id]; if (!card || (cardNeedsEnemy(card) && s.targetIndex === null) || !s.enemy || s.enemy.hp <= 0) { state.busy = false; cancelSelection(); refreshBattleParts(); return; } s.energy -= card.cost; s.hand.splice(index, 1); s.discard.push(id); if (state.heroId === 'zhugeliang' && card.strategy) { s.player.mystery = Math.min(mysteryCap(), s.player.mystery + 1); log(`神机：计策牌触发，当前 ${s.player.mystery}/${mysteryCap()} 层。`); } card.effect(s); markEnemyDefeats(s); s.player.played++; if (card.type === 'attack') { s.player.attackCardsPlayed++; const threshold = s.player.thousandBlades ? 2 : 3; if (s.player.attackCardsPlayed >= threshold && !s.hand.includes('fangFinisher')) { s.player.attackCardsPlayed = 0; s.hand.push('fangFinisher'); log('裂牙补刀：攻击牌连段完成，生成 1 张裂牙补刀。'); } } if (state.heroId === 'zhaoyun') { s.player.dragon = (s.player.dragon + 1) % 3; if (s.player.dragon === 0) { hit(s, 40); log('龙胆连击：追加 40 伤害。'); } } if (s.enemy.hp <= 0) { log(`${s.enemy.name}已被击破。`); syncTarget(s); } if (!s.enemies.some(enemy => enemy.hp > 0)) state.reward = { type: s.enemyIndex === 1 ? 'relic' : s.enemyIndex === 2 ? 'boss-card' : 'card' }; s.targetIndex = null; s.enemy = s.enemies.find(enemy => enemy.hp > 0) || s.enemy; state.busy = false; state.selectedCard = null; state.selectedIndex = null; state.animateDeal = false; state.reward ? render() : refreshBattleParts(); }
 function endTurn() { const s = state.battle; if (!s || !s.enemies.some(enemy => enemy.hp > 0)) return; state.selectedCard = null; state.selectedIndex = null; s.targetIndex = null; s.discard.push(...s.hand); s.hand = []; enemyAct(s); if (s.player.hp <= 0) { clearRunSave(); state.run = null; state.screen = 'result'; state.meta.shards += 12; saveMeta(); render(); return; } if (!s.enemies.some(enemy => enemy.hp > 0)) { state.reward = { type: s.enemyIndex === 1 ? 'relic' : s.enemyIndex === 2 ? 'boss-card' : 'card' }; render(); return; } s.turn++; s.energy = 3; s.player.block = 0; draw(s, 5); log(`第 ${s.turn} 回合开始。敌方意图：${intentText(s)}。`); state.animateDeal = true; refreshBattleParts(); }
 function finishBattleReward() {
   recordBattleWon();
@@ -324,7 +324,7 @@ function scrollBattleLogToBottom() {
   const logPanel = document.querySelector('#battle-log');
   if (logPanel) logPanel.scrollTop = logPanel.scrollHeight;
 }
-function refreshBattleParts({ keepHand = false, removedIndex = -1 } = {}) {
+function refreshBattleParts() {
   if (state.screen !== 'battle') return render();
   const current = document.querySelector('.battle-screen');
   if (!current) return render();
@@ -340,17 +340,9 @@ function refreshBattleParts({ keepHand = false, removedIndex = -1 } = {}) {
   });
   const currentHandPanel = current.querySelector('#hand-panel');
   const nextHandPanel = next.querySelector('#hand-panel');
-  if (!keepHand && currentHandPanel && nextHandPanel) currentHandPanel.innerHTML = nextHandPanel.innerHTML;
-  if (keepHand && hand) {
-    hand.querySelector(`[data-index="${removedIndex}"]`)?.remove();
-    hand.querySelectorAll('[data-index]').forEach((card, index) => { card.dataset.index = index; });
-    const missing = state.battle.hand.length - hand.children.length;
-    if (missing > 0) {
-      const start = state.battle.hand.length - missing;
-      hand.insertAdjacentHTML('beforeend', state.battle.hand.slice(start).map((id, index) => cardView(id, start + index)).join(''));
-    }
-    currentHandPanel.querySelector('.hand-title span:last-child').textContent = `${state.battle.hand.length} 张`;
-  }
+  // The hand panel contains selection state, the preview and the action hint.
+  // Rebuild it as one unit so a played/cancelled card can never leave stale UI behind.
+  if (currentHandPanel && nextHandPanel) currentHandPanel.innerHTML = nextHandPanel.innerHTML;
   const nextHand = document.querySelector('.hand');
   if (nextHand) nextHand.scrollLeft = handScroll;
   bind();
