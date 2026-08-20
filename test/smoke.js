@@ -6,6 +6,7 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const appSource = fs.readFileSync(path.join(root, 'web/src/app.js'), 'utf8');
 const stylesSource = fs.readFileSync(path.join(root, 'web/src/styles.css'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'web/index.html'), 'utf8');
 
 function createHarness() {
   const storage = new Map();
@@ -93,6 +94,7 @@ run('旧战斗存档补齐新状态字段', () => {
   const battle = JSON.parse(normalized);
   assert.equal(battle.player.bleed, 0);
   assert.equal(battle.enemies[0].attackBonus, 0);
+  assert.equal(battle.targetIndex, null);
 });
 
 run('普通敌人治疗机制生效', () => {
@@ -393,16 +395,61 @@ run('战斗状态徽标、手牌层级和移动端安全布局规则存在', () 
 
 run('选择牌会切换选中状态并支持再次点击取消', () => {
   const result = JSON.parse(inVm(`
-    state.battle = { hand: ['spear'], energy: 3, enemy: { hp: 100 } };
+    const first = cloneEnemy({ name: '前排', hp: 100, attack: 1 });
+    const second = cloneEnemy({ name: '后排', hp: 100, attack: 1 });
+    state.battle = { hand: ['spear'], energy: 3, enemy: first, enemies: [first, second], targetIndex: null };
     state.selectedIndex = null;
     state.selectedCard = null;
     state.busy = false;
     playCard(0);
-    const selected = { index: state.selectedIndex, card: state.selectedCard };
+    const selected = { index: state.selectedIndex, card: state.selectedCard, target: state.battle.targetIndex };
+    selectTarget(1);
+    const targeted = state.battle.targetIndex;
     playCard(0);
-    return JSON.stringify({ selected, cancelled: state.selectedIndex === null && state.selectedCard === null });
+    return JSON.stringify({ selected, targeted, cancelled: state.selectedIndex === null && state.selectedCard === null && state.battle.targetIndex === null });
   `));
-  assert.deepEqual(result, { selected: { index: 0, card: 'spear' }, cancelled: true });
+  assert.deepEqual(result, { selected: { index: 0, card: 'spear', target: null }, targeted: 1, cancelled: true });
+});
+
+run('新战斗不会伪高亮默认敌人，必须点敌人后才显示目标', () => {
+  const result = JSON.parse(inVm(`
+    state.heroId = 'zhangfei';
+    state.run = { deck: ['spear'], hp: 750, gold: 80, relics: [], souls: [], upgraded: {}, path: [] };
+    freshBattle(0);
+    const before = { targetIndex: state.battle.targetIndex, highlighted: enemyPanelView(state.battle).includes('selected-target') };
+    state.selectedIndex = 0;
+    state.selectedCard = 'spear';
+    selectTarget(1);
+    const after = { targetIndex: state.battle.targetIndex, highlighted: enemyPanelView(state.battle).includes('selected-target') };
+    return JSON.stringify({ before, after });
+  `));
+  assert.deepEqual(result, { before: { targetIndex: null, highlighted: false }, after: { targetIndex: 1, highlighted: true } });
+});
+
+run('自用卡牌预览提供使用按钮，攻击牌预览提示选择敌人', () => {
+  const result = JSON.parse(inVm(`
+    state.selectedIndex = 0;
+    state.selectedCard = 'guard';
+    const selfPreview = cardPreviewView();
+    state.selectedCard = 'spear';
+    const enemyPreview = cardPreviewView();
+    state.selectedIndex = null;
+    state.selectedCard = null;
+    return JSON.stringify({ self: selfPreview, enemy: enemyPreview });
+  `));
+  assert.match(result.self, /data-action="use-card"/);
+  assert.match(result.self, /立即生效/);
+  assert.match(result.enemy, /请选择敌方目标使用/);
+  assert.doesNotMatch(result.enemy, /data-action="use-card"/);
+});
+
+run('卡牌预览具备手机竖屏适配约束', () => {
+  assert.match(indexSource, /name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/);
+  assert.match(stylesSource, /@media \(max-width:\s*560px\)/);
+  assert.match(stylesSource, /\.hand[^}]*overflow-x:\s*auto/);
+  assert.match(stylesSource, /\.card-preview[^}]*display:\s*flex/);
+  assert.match(stylesSource, /\.card-preview-copy[^}]*min-width:\s*0/);
+  assert.match(stylesSource, /\.card-preview-copy small[^}]*text-overflow:\s*ellipsis/);
 });
 
 run('卡牌展示包含稳定索引、名称和 WebP 图片', () => {

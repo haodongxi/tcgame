@@ -133,6 +133,13 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .status-chip.control { border-color: rgba(129,160,207,.8); background: rgba(74,102,150,.3); color: #dce8ff; }
 .enemy-bar:has(.status-chip) { transition: outline-color .2s, box-shadow .2s, transform .2s; }
 .hand-area { position: relative; z-index: 4; min-width: 0; isolation: isolate; }
+.card-preview { display: flex; align-items: center; gap: 12px; min-height: 0; margin: 0 4px 6px; padding: 8px 10px; border: 1px solid rgba(212,166,78,.72); border-radius: 5px; background: rgba(24,20,14,.88); color: var(--paper); box-shadow: 0 4px 12px rgba(0,0,0,.22); }
+.card-preview.empty { display: none; }
+.card-preview-copy { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.card-preview-copy b { color: var(--gold-light); font-size: 15px; }
+.card-preview-copy span, .card-preview-copy small, .card-preview-hint { color: #d4c7ad; font-size: 12px; line-height: 1.35; }
+.card-preview-copy small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-use { flex: 0 0 auto; padding: 6px 14px; }
 .hand-title { display: flex; justify-content: space-between; align-items: center; color: var(--gold-light); letter-spacing: .2em; margin: 4px 4px 7px; }
 .hand { position: relative; z-index: 1; display: flex; align-items: flex-end; gap: 0; height: clamp(156px, 24dvh, 190px); min-height: 156px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-x; padding: 36px 4px 16px; scrollbar-color: var(--gold) #2b271f; }
 .card { display: flex; flex-direction: column; align-items: stretch; flex: 0 0 auto; width: auto; height: 100%; aspect-ratio: 9 / 16; min-height: 0; margin-right: -24px; overflow: hidden; border: 2px solid #d6b567; border-radius: 7px; padding: 0; background: linear-gradient(155deg, #f7edd7, #c8b48d); color: #302218; position: relative; text-align: left; box-shadow: 0 5px 12px rgba(0,0,0,.25); transform-origin: bottom center; transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast), opacity var(--motion-fast); touch-action: manipulation; }
