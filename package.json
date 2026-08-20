@@ -1,0 +1,8 @@
+{
+  "name": "luanshi-marching-card-roguelike",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:smoke",
+    "test:smoke": "node test/smoke.js"
+  }
+}

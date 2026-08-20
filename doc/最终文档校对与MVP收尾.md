@@ -24,7 +24,7 @@
 | 原文要求 | 当前实现 | 处理结论 |
 | --- | --- | --- |
 | 原规划建议 Vite + React + TypeScript | 当前为原生 HTML/CSS/JS | MVP 仍可运行；零构建更适合当前 GitHub Pages 静态发布，后续若多人协作再迁移 |
-| 原规划建议 Vitest/Playwright | 当前执行 Node 语法检查、差异检查和资源清单检查 | 当前仓库没有依赖与测试脚手架，已记录为后续工程化工作 |
+| 原规划建议 Vitest/Playwright | 当前使用零依赖 Node 冒烟测试，覆盖核心页面、路线、存档、随机和敌人机制；浏览器实测继续作为 UI 验收 | 尚未引入完整端到端测试框架，复杂交互仍需浏览器手工复测 |
 | 卡牌交互要求 scale(1.45)、translateY(-90px) | 当前采用容器内安全上浮，避免手机端 overflow 裁减 | 视觉效果保留，但参数为兼容单屏布局而调整 |
 | 原始规划中的随机 seed | 每局生成并持久化 `seed` 与 `rngState`，洗牌、敌人组和将魂选择使用可复现随机序列 | 已补齐；旧存档继续游戏时自动补字段 |
 | 原始路线文档中的部分召唤/治疗/流血/反伤细节 | 普通敌人、精英和 Boss 统一支持治疗、召唤、多段攻击、蓄力、破甲、流血、虚弱、增伤和阵亡反伤等词条 | 已补齐；仍保留少量未进入当前牌池的扩展词条 |
@@ -38,6 +38,7 @@ MVP1~MVP18 的玩法、路线、Boss、局外成长和核心 UI 闭环已完成�
 
 - `node --check web/src/app.js`
 - `git diff --check`
+- `npm test`（27 个冒烟用例通过）
 - 卡牌资源引用数量与 `web/public/assets/cards` 文件数量一致。
 - 旧存档字段：`chapter`、`run.path`、`battle.enemies`、`meta.stats`、`meta.achievements`、`meta.cardBack` 均有兼容默认值。
 - 旧局存档的 `run.seed`、`run.rngState`、`battle.player.bleed` 等新字段均有兼容默认值。
@@ -50,4 +51,4 @@ MVP1~MVP18 的玩法、路线、Boss、局外成长和核心 UI 闭环已完成�
 - 音效与音乐资源。
 - GitHub Pages/线上部署流程和域名配置。
 - 微信小程序适配层。
-- 可复现随机种子、Vitest/Playwright 自动化测试工程和后端账号/云存档。
+- 完整 Vitest/Playwright 自动化测试工程和后端账号/云存档。

@@ -236,6 +236,7 @@ function enemyAct(s) {
       log(`${enemy.name}令友军伤害提升 ${Math.round(enemy.buffAllies * 100)}%。`); continue;
     }
     if (enemy.weakenPlayer) { s.player.weak = Math.max(s.player.weak, 2); log(`${enemy.name}施加 1 回合虚弱。`); continue; }
+    if (s.enemyIndex === 2 && !enemy.berserk && enemy.hp <= enemy.maxHp * 0.5) { enemy.berserk = true; log(`${enemy.name}进入暴走。`); }
     if (enemy.berserkThreshold && !enemy.berserk && enemy.hp <= enemy.maxHp * enemy.berserkThreshold) { enemy.berserk = true; log(`${enemy.name}进入死战，伤害翻倍。`); }
     if (enemy.charge && s.turn % 3 === 0) { enemyStrike(s, enemy, enemy.charge, `${enemy.name}蓄力猛击`); continue; }
     if (summonAlly(s, enemy)) continue;
