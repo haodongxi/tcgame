@@ -161,6 +161,10 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .bond-chip { border-color: #a24a37; background: rgba(162,74,55,.12); color: #8a3526; }
 .relic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .relic-offer { display: grid; justify-items: center; gap: 8px; padding: 16px 10px; border: 1px solid #b48b42; border-radius: 5px; background: linear-gradient(155deg, #f8edd2, #d8c398); color: #382718; text-align: center; }
+.camp-stats { justify-content: center; }
+.achievement-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.achievement-chip { padding: 7px 11px; border: 1px solid rgba(118,82,33,.3); border-radius: 999px; background: rgba(115,90,43,.08); color: #8c806b; font-size: 12px; }
+.achievement-chip.unlocked { border-color: var(--gold); background: rgba(212,166,78,.2); color: #6b4a1e; box-shadow: 0 0 0 2px rgba(212,166,78,.12); }
 .relic-offer:hover { transform: translateY(-3px); border-color: var(--cinnabar); }
 .relic-offer small { color: #75664f; line-height: 1.45; }
 .talent-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 18px; border: 1px solid rgba(118,82,33,.35); border-radius: 5px; background: rgba(255,250,235,.72); color: #382718; }
