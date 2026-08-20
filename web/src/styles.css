@@ -109,12 +109,19 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .stat b { color: #3a2712; }
 .hand-area { min-width: 0; }
 .hand-title { display: flex; justify-content: space-between; align-items: center; color: var(--gold-light); letter-spacing: .2em; margin: 4px 4px 7px; }
-.hand { display: flex; align-items: stretch; gap: 8px; height: clamp(156px, 24dvh, 190px); min-height: 156px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-x; padding: 10px 4px 16px; scrollbar-color: var(--gold) #2b271f; }
-.card { display: flex; flex-direction: column; align-items: stretch; flex: 0 0 102px; width: 102px; height: 100%; min-height: 0; overflow: hidden; border: 2px solid #d6b567; border-radius: 7px; padding: 8px; background: linear-gradient(155deg, #f7edd7, #c8b48d); color: #302218; position: relative; text-align: left; box-shadow: 0 5px 12px rgba(0,0,0,.25); transition: transform .18s, box-shadow .18s, opacity .18s; touch-action: manipulation; }
+.hand { display: flex; align-items: flex-end; gap: 0; height: clamp(156px, 24dvh, 190px); min-height: 156px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-x; padding: 10px 4px 16px; scrollbar-color: var(--gold) #2b271f; }
+.card { display: flex; flex-direction: column; align-items: stretch; flex: 0 0 auto; width: auto; height: 100%; aspect-ratio: 9 / 16; min-height: 0; margin-right: -24px; overflow: hidden; border: 2px solid #d6b567; border-radius: 7px; padding: 0; background: linear-gradient(155deg, #f7edd7, #c8b48d); color: #302218; position: relative; text-align: left; box-shadow: 0 5px 12px rgba(0,0,0,.25); transform-origin: bottom center; transition: transform .2s ease-out, box-shadow .18s, opacity .18s; touch-action: manipulation; }
+.card-image { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .card.deal-card { animation: card-deal .32s both; animation-delay: calc(var(--deal-index, 0) * 45ms); }
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { transform: translateY(-60px) scale(1.35); z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  .hand.has-selection .card:not(.selected):hover { opacity: .85; }
+}
 .card.attack { background: linear-gradient(155deg, #f2d9c8, #a74b3e); color: #fff4e9; }
 .card.skill { background: linear-gradient(155deg, #f3e7c6, #ae8f4f); }
-.card.selected { transform: translateY(-10px) scale(1.04); z-index: 2; box-shadow: 0 0 0 3px var(--gold-light), 0 12px 20px rgba(0,0,0,.35); }
+.card.selected { transform: translateY(-90px) scale(1.45); z-index: 1000; box-shadow: 0 0 0 3px var(--gold-light), 0 12px 20px rgba(0,0,0,.35); }
+.hand.has-selection .card:not(.selected) { opacity: .6; }
+.enemy-bar.is-target { cursor: crosshair; outline: 3px solid var(--gold-light); box-shadow: 0 0 0 6px rgba(248,217,139,.18); }
 .card.enhanced { border-color: #e8bd56; box-shadow: inset 0 0 0 2px rgba(255,208,85,.35), 0 5px 12px rgba(0,0,0,.25); }
 .card.is-playing { animation: card-play .22s ease-in both; pointer-events: none; }
 .cost { display: inline-grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: var(--gold-light); color: #39230d; font-weight: 700; border: 1px solid #8e6426; }
@@ -153,7 +160,6 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .log-line { font-size: 15px; padding: 9px 0; }
   .player-panel { padding: 16px 20px; }
   .player-panel .avatar { width: 68px; height: 68px; font-size: 30px; }
-  .card { flex-basis: 116px; width: 116px; padding: 10px; }
   .card-art { font-size: 36px; padding: 18px 0 10px; }
   .card strong { font-size: 16px; }
   .map-card, .result-card { width: min(100%, 820px); margin-left: auto; margin-right: auto; }
@@ -197,7 +203,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .battle-actions .primary { flex: 0 0 auto; padding-inline: 16px; }
   .screen:has(.battle-screen) { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
   .hand { height: clamp(186px, 25dvh, 206px); min-height: 186px; gap: 6px; }
-  .card { flex-basis: 88px; width: 88px; padding: 6px; }
+  .card { margin-right: -20px; }
   .card-art { font-size: 24px; padding: 7px 0 4px; }
   .card strong { font-size: 13px; }
 }
