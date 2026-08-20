@@ -204,9 +204,13 @@ function beginBattle(type = 'battle') {
   const enemyIndex = type === 'boss' ? 2 : type === 'elite' ? 1 : 0;
   freshBattle(enemyIndex); state.screen = 'battle'; render();
 }
+function currentRoute() { return chapterRouteColumns[state.chapter || 0] || routeColumns; }
+function isReachableNode(type) { return Boolean(currentRoute()[state.node]?.some(option => option.id === type)); }
 function enterNode(type) {
+  if (!state.run || !isReachableNode(type)) return;
   state.run.path ||= [];
-  state.run.path.push({ chapter: state.chapter || 0, node: state.node, type });
+  const last = state.run.path[state.run.path.length - 1];
+  if (!last || last.chapter !== (state.chapter || 0) || last.node !== state.node || last.type !== type) state.run.path.push({ chapter: state.chapter || 0, node: state.node, type });
   if (type === 'battle' || type === 'elite' || type === 'boss') return beginBattle(type);
   state.screen = type; render();
 }

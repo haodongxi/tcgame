@@ -69,9 +69,15 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .node button { position: relative; z-index: 1; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #8d6b36; background: var(--paper); color: #62451e; }
 .node.done button { background: var(--cinnabar); color: white; }
 .node.active button { background: var(--gold-light); box-shadow: 0 0 0 4px rgba(168,59,44,.18); }
+.node.active button { animation: route-pulse 1.8s ease-in-out infinite; }
 .node small { display: block; margin-top: 7px; color: #6b5b42; font-size: 12px; }
 .node-types { position: relative; z-index: 1; display: grid; gap: 3px; margin-top: 7px; }
 .node-type { display: block; color: #796444; font-size: 10px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.node-type.battle { color: #9a3728; }
+.node-type.elite, .node-type.boss { color: #765221; font-weight: 700; }
+.node-type.shop { color: #7d5a1f; }
+.node-type.rest { color: #47705b; }
+.node-type.event { color: #65517c; }
 .node.done .node-type { color: #9a3728; }
 .node.active .node-type { color: #6b4a1e; font-weight: 700; }
 .path-review { margin: 8px 0 18px; padding: 9px 11px; border-left: 3px solid var(--gold); background: rgba(180,139,66,.1); color: #6b5b42; font-size: 12px; line-height: 1.6; }
@@ -79,6 +85,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .route-options, .choice-list { display: grid; gap: 10px; }
 .route-option { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 13px 15px; border: 1px solid rgba(118,82,33,.35); border-radius: 5px; background: rgba(255,250,235,.72); color: #382718; text-align: left; transition: .18s; }
 .route-option:hover { transform: translateX(3px); border-color: var(--cinnabar); background: #fff8e6; }
+.route-option:active { transform: translateX(3px) scale(.985); }
 .route-option b { display: block; font-size: 16px; }
 .route-option small { display: block; margin-top: 4px; color: #75664f; line-height: 1.45; }
 .route-mark { display: grid; place-items: center; flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; background: #302b23; border: 1px solid var(--gold); color: var(--gold-light); font-weight: 700; }
@@ -162,6 +169,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .talent-card small { color: #9a3728; }
 @keyframes card-deal { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes card-play { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-28px) scale(.72) rotate(-3deg); } }
+@keyframes route-pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(168,59,44,.18); } 50% { box-shadow: 0 0 0 8px rgba(168,59,44,.08); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 
 /* Desktop: use the extra width for breathing room without turning the game into a stretched dashboard. */
