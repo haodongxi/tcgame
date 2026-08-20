@@ -379,12 +379,39 @@ run('存档版本校验、保存和清理行为正确', () => {
 
 run('战斗状态徽标、手牌层级和移动端安全布局规则存在', () => {
   assert.match(stylesSource, /\.card\.selected[^}]*z-index:\s*1000/);
+  assert.match(stylesSource, /\.card\.selected[^}]*animation:\s*card-select-pop/);
+  assert.match(stylesSource, /\.card\.selected[^}]*transform:\s*scale\(1\.035\)/);
+  assert.match(stylesSource, /@keyframes card-select-pop/);
+  assert.match(stylesSource, /\.card:not\(\.selected\):hover/);
   assert.match(stylesSource, /\.hand[^}]*overflow-x:\s*auto/);
   assert.match(stylesSource, /\.hand[^}]*overflow-y:\s*hidden/);
   assert.match(stylesSource, /prefers-reduced-motion/);
   assert.match(stylesSource, /\.enemy-bar[^}]*z-index:\s*1/);
   assert.match(stylesSource, /\.log-panel[^}]*z-index:\s*2/);
-  assert.match(stylesSource, /\.hand-area[^}]*z-index:\s*3/);
+  assert.match(stylesSource, /\.hand-area[^}]*z-index:\s*4/);
+});
+
+run('选择牌会切换选中状态并支持再次点击取消', () => {
+  const result = JSON.parse(inVm(`
+    state.battle = { hand: ['spear'], energy: 3, enemy: { hp: 100 } };
+    state.selectedIndex = null;
+    state.selectedCard = null;
+    state.busy = false;
+    playCard(0);
+    const selected = { index: state.selectedIndex, card: state.selectedCard };
+    playCard(0);
+    return JSON.stringify({ selected, cancelled: state.selectedIndex === null && state.selectedCard === null });
+  `));
+  assert.deepEqual(result, { selected: { index: 0, card: 'spear' }, cancelled: true });
+});
+
+run('卡牌展示包含稳定索引、名称和 WebP 图片', () => {
+  const cardHtml = vm.runInContext(`cardView('spear', 2)`, context);
+  assert.match(cardHtml, /class="card attack/);
+  assert.match(cardHtml, /aria-label="挺矛直刺"/);
+  assert.match(cardHtml, /data-index="2"/);
+  assert.match(cardHtml, /cards\/base\/1\.webp/);
+  assert.match(stylesSource, /\.card-image[^}]*object-fit:\s*cover/);
 });
 
 console.log(`Smoke tests passed: ${passed}`);

@@ -38,7 +38,7 @@ MVP1~MVP18 的玩法、路线、Boss、局外成长和核心 UI 闭环已完成�
 
 - `node --check web/src/app.js`
 - `git diff --check`
-- `npm test`（27 个冒烟用例通过）
+- `npm test`（30 个冒烟用例通过）
 - 卡牌资源引用数量与 `web/public/assets/cards` 文件数量一致。
 - 旧存档字段：`chapter`、`run.path`、`battle.enemies`、`meta.stats`、`meta.achievements`、`meta.cardBack` 均有兼容默认值。
 - 旧局存档的 `run.seed`、`run.rngState`、`battle.player.bleed` 等新字段均有兼容默认值。
