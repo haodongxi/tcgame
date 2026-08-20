@@ -89,7 +89,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .battle-screen { display: grid; grid-template-rows: auto minmax(190px, 1fr) auto auto; gap: 10px; padding-bottom: 10px; }
 .screen:has(.battle-screen) { height: 100dvh; min-height: 0; overflow: hidden; }
 .battle-screen { height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto auto; }
-.enemy-bar, .player-panel { border-radius: 4px; }
+.enemy-bar, .player-panel { position: relative; z-index: 1; border-radius: 4px; }
 .enemy-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(22,20,16,.9); border: 1px solid rgba(212,166,78,.75); }
 .avatar { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #91816b, #211d18 65%); border: 2px solid var(--gold); font-size: 26px; }
 .enemy-name { color: var(--gold-light); font-size: 20px; }
@@ -97,7 +97,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .bar { height: 8px; background: #453c30; border-radius: 8px; overflow: hidden; margin-top: 6px; }
 .bar span { display: block; height: 100%; background: var(--cinnabar); transition: width .25s; }
 .intent { color: #f5d38b; text-align: right; font-size: 13px; }
-.log-panel { padding: 18px 20px; min-height: 0; overflow: auto; overscroll-behavior: contain; background: rgba(241,232,212,.94); color: #30271d; border: 1px solid #aa8a53; border-radius: 3px; box-shadow: inset 0 0 25px rgba(116,92,50,.12); }
+.log-panel { position: relative; z-index: 2; min-width: 0; padding: 18px 20px; min-height: 0; overflow: auto; overscroll-behavior: contain; background: var(--paper); color: #30271d; border: 1px solid #aa8a53; border-radius: 3px; box-shadow: inset 0 0 25px rgba(116,92,50,.12); }
 .log-panel h2 { margin: 0 0 10px; text-align: center; color: #765221; font-size: 20px; letter-spacing: .18em; }
 .log-line { padding: 7px 0; border-top: 1px solid rgba(118,82,33,.16); font-size: 14px; }
 .log-line::before { content: "✦"; color: #9b7938; margin-right: 8px; }
