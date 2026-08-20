@@ -89,8 +89,11 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .battle-screen { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 10px; padding-bottom: 10px; }
 .screen:has(.battle-screen) { height: 100dvh; min-height: 0; overflow: hidden; }
 .battle-screen { height: 100%; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+.enemy-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-width: 0; }
 .enemy-bar, .player-panel { position: relative; z-index: 1; border-radius: 4px; }
-.enemy-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(22,20,16,.9); border: 1px solid rgba(212,166,78,.75); }
+.enemy-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; min-width: 0; width: 100%; padding: 12px 14px; background: rgba(22,20,16,.9); border: 1px solid rgba(212,166,78,.75); color: var(--paper); text-align: left; }
+.enemy-bar.selected-target { outline: 3px solid var(--gold-light); box-shadow: 0 0 0 5px rgba(248,217,139,.18); }
+.enemy-bar.defeated { filter: grayscale(1); opacity: .38; }
 .avatar { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #91816b, #211d18 65%); border: 2px solid var(--gold); font-size: 26px; }
 .enemy-name { color: var(--gold-light); font-size: 20px; }
 .hp-text { color: #e8dfcd; font-size: 13px; }
@@ -182,7 +185,13 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .hero-mark { grid-row: span 2; margin: 0; }
   .map-line { gap: 0; }
   .node small { font-size: 10px; }
+  .enemy-group { gap: 4px; }
   .enemy-bar { grid-template-columns: auto 1fr; }
+  .enemy-bar { grid-template-columns: 1fr; justify-items: center; gap: 4px; padding: 7px 5px; text-align: center; }
+  .enemy-bar .avatar { width: 34px; height: 34px; font-size: 16px; }
+  .enemy-bar .enemy-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .enemy-bar .hp-text { font-size: 10px; }
+  .enemy-bar .intent { grid-column: auto; width: 100%; padding-top: 4px; text-align: center; font-size: 10px; }
   .intent { grid-column: 1 / -1; text-align: left; border-top: 1px solid rgba(212,166,78,.25); padding-top: 8px; }
   .reward-grid { grid-template-columns: 1fr; }
   .reward-grid .card { min-height: 100px; }
