@@ -13,7 +13,7 @@ web/
     app.js                   游戏状态与交互逻辑
     styles.css               视觉样式与响应式布局
   public/assets/
-    battlefield-bg.png       水墨战场背景
+    battlefield-bg.webp      水墨战场背景
 ```
 
 ## 本地查看

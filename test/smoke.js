@@ -159,6 +159,21 @@ run('基础牌与张飞 18 张专属牌的图片资源全部存在', () => {
   imagePaths.forEach(image => assert.ok(fs.existsSync(path.join(root, 'web', image.replace(/^\.\//, ''))), image));
 });
 
+run('线上图片资源统一使用 WebP 且不残留 PNG', () => {
+  const assetRoot = path.join(root, 'web/public/assets');
+  const assets = [];
+  const visit = directory => fs.readdirSync(directory, { withFileTypes: true }).forEach(entry => {
+    const target = path.join(directory, entry.name);
+    if (entry.isDirectory()) visit(target);
+    else assets.push(target);
+  });
+  visit(assetRoot);
+  assert.ok(assets.length >= 22);
+  assert.ok(assets.every(asset => path.extname(asset) === '.webp'));
+  assert.doesNotMatch(appSource, /\.png/);
+  assert.doesNotMatch(stylesSource, /\.png/);
+});
+
 run('所有路线节点类型都能被节点分发器识别', () => {
   const unknown = JSON.parse(inVm(`return JSON.stringify(chapterRouteColumns.flat(2).filter(option => !['battle','elite','boss','event','shop','rest'].includes(option.id)))`));
   assert.deepEqual(unknown, []);
