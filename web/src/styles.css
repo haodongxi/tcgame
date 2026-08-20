@@ -66,8 +66,8 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .map-card, .result-card { padding: 22px; border-radius: 4px; margin-top: 8vh; }
 .map-card h2, .result-card h2 { margin-top: 0; color: #765221; text-align: center; }
 .map-summary { color: #6b5b42; text-align: center; line-height: 1.7; }
-.map-line { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-items: center; margin: 28px 0; }
-.node { position: relative; text-align: center; }
+.map-line { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-items: start; margin: 28px 0; }
+.node { position: relative; display: grid; grid-template-rows: 40px 52px; align-content: start; text-align: center; min-width: 0; }
 .node::after { content: ""; position: absolute; top: 19px; left: 60%; width: 80%; height: 2px; background: #aa8a53; z-index: 0; }
 .node:last-child::after { display: none; }
 .node button { position: relative; z-index: 1; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #8d6b36; background: var(--paper); color: #62451e; }
@@ -75,8 +75,8 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .node.active button { background: var(--gold-light); box-shadow: 0 0 0 4px rgba(168,59,44,.18); }
 .node.active button { animation: route-pulse 1.8s ease-in-out infinite; }
 .node small { display: block; margin-top: 7px; color: #6b5b42; font-size: 12px; }
-.node-types { position: relative; z-index: 1; display: grid; align-content: start; gap: 3px; min-height: 28px; margin-top: 7px; }
-.node-type { display: block; min-height: 24px; color: #796444; font-size: 10px; line-height: 1.2; white-space: normal; overflow: hidden; text-overflow: ellipsis; }
+.node-types { position: relative; z-index: 1; display: grid; grid-template-rows: repeat(2, 24px); align-content: start; gap: 3px; height: 52px; margin-top: 7px; overflow: hidden; }
+.node-type { display: block; height: 24px; min-height: 24px; color: #796444; font-size: 10px; line-height: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .node-type.battle { color: #9a3728; }
 .node-type.elite, .node-type.boss { color: #765221; font-weight: 700; }
 .node-type.shop { color: #7d5a1f; }
