@@ -1,6 +1,8 @@
 // Created by haodongsheng
 const app = document.querySelector('#app');
 const SAVE_KEY = 'luanshi-mvp-save-v1';
+const RUN_SAVE_KEY = 'luanshi-run-save-v1';
+const RUN_SAVE_VERSION = 1;
 
 const heroes = {
   zhangfei: { name: '张飞', mark: '张', maxHp: 750, passive: '狂怒：受到伤害时叠加 1 层，每层武技伤害 +5%。', rage: true, skillIds: ['roar', 'bridge', 'yandang'] },
@@ -47,6 +49,11 @@ const souls = {
 let state = { screen: 'title', heroId: null, node: 0, meta: loadMeta(), run: null, battle: null, selectedCard: null, reward: null };
 function loadMeta() { try { return { shards: 0, talisman: 0, talents: { sharpBlade: 0 }, ...JSON.parse(localStorage.getItem(SAVE_KEY)) }; } catch { return { shards: 0, talisman: 0, talents: { sharpBlade: 0 } }; } }
 function saveMeta() { localStorage.setItem(SAVE_KEY, JSON.stringify(state.meta)); }
+function loadRunSave() { try { const save = JSON.parse(localStorage.getItem(RUN_SAVE_KEY)); return save?.version === RUN_SAVE_VERSION ? save : null; } catch { return null; } }
+function saveRun() { if (!state.run || !['map','battle','event','shop','rest'].includes(state.screen)) return; localStorage.setItem(RUN_SAVE_KEY, JSON.stringify({ version: RUN_SAVE_VERSION, screen: state.screen, heroId: state.heroId, node: state.node, run: state.run, battle: state.battle, selectedCard: state.selectedCard, reward: state.reward })); }
+function clearRunSave() { localStorage.removeItem(RUN_SAVE_KEY); }
+function hasRunSave() { return Boolean(loadRunSave()); }
+function continueRun() { const save = loadRunSave(); if (!save) return; state = { ...state, screen: save.screen, heroId: save.heroId, node: save.node, run: save.run, battle: save.battle, selectedCard: save.selectedCard, reward: save.reward }; render(); }
 function defaultDeck() { return ['spear','spear','guard','guard','train','ration','sweep', ...heroes[state.heroId].skillIds]; }
 function upgraded(id) { return Boolean(state.run?.upgraded?.[id]); }
 function valueFor(id, normal, improved) { return upgraded(id) ? improved : normal; }
@@ -74,20 +81,20 @@ function enemyAttack(s) { const eliteBonus = s.enemyIndex === 1 ? Math.floor((s.
 function intentText(s) { return s.turn % 2 ? `攻击 ${enemyAttack(s)}` : `获得 20 护甲`; }
 function enemyAct(s) { if (s.enemy.burn) { s.enemy.hp = Math.max(0, s.enemy.hp - s.enemy.burn * 12); log(`灼烧造成 ${s.enemy.burn * 12} 伤害。`); s.enemy.burn--; } if (s.enemyIndex === 1 && s.turn > 1 && s.turn % 3 === 0) log('虎牢守将：蓄势完成，攻击强化。'); if (s.enemyIndex === 2 && !s.enemy.berserk && s.enemy.hp <= s.enemy.maxHp * 0.5) { s.enemy.berserk = true; log('董卓亲军进入暴走：攻击 +20%。'); } if (s.turn % 2) { if (s.player.evade) { log('单骑救主抵消了本次攻击。'); s.player.evade = false; } else { const attack = enemyAttack(s); const blocked = Math.min(s.player.block, attack); s.player.block -= blocked; const damage = attack - blocked; s.player.hp -= damage; log(`${s.enemy.name}攻击，造成 ${damage} 伤害。`); if (state.heroId === 'zhangfei' && damage > 0) s.player.rage = Math.min(10, s.player.rage + (s.player.hp < s.player.maxHp * 0.5 ? 2 : 1)); } } else { s.enemy.block += 20; log(`${s.enemy.name}获得 20 护甲。`); } }
 function playCard(index) { const s = state.battle; const id = s.hand[index]; const card = cards[id]; if (!card || s.energy < card.cost || s.enemy.hp <= 0) return; state.selectedCard = id; s.energy -= card.cost; s.hand.splice(index, 1); s.discard.push(id); if (state.heroId === 'zhugeliang' && card.strategy) { s.player.mystery = Math.min(mysteryCap(), s.player.mystery + 1); log(`神机：计策牌触发，当前 ${s.player.mystery}/${mysteryCap()} 层。`); } card.effect(s); s.player.played++; if (state.heroId === 'zhaoyun') { s.player.dragon = (s.player.dragon + 1) % 3; if (s.player.dragon === 0) { hit(s, 40); log('龙胆连击：追加 40 伤害。'); } } if (s.enemy.hp <= 0) { state.reward = { type: s.enemyIndex === 1 ? 'relic' : 'card' }; } render(); }
-function endTurn() { const s = state.battle; if (!s || s.enemy.hp <= 0) return; state.selectedCard = null; s.discard.push(...s.hand); s.hand = []; enemyAct(s); if (s.player.hp <= 0) { state.run = null; state.screen = 'result'; state.meta.shards += 12; saveMeta(); render(); return; } if (s.enemy.hp <= 0) { state.reward = { type: s.enemyIndex === 1 ? 'relic' : 'card' }; render(); return; } s.turn++; s.energy = 3; s.player.block = 0; draw(s, 5); log(`第 ${s.turn} 回合开始。敌方意图：${intentText(s)}。`); render(); }
+function endTurn() { const s = state.battle; if (!s || s.enemy.hp <= 0) return; state.selectedCard = null; s.discard.push(...s.hand); s.hand = []; enemyAct(s); if (s.player.hp <= 0) { clearRunSave(); state.run = null; state.screen = 'result'; state.meta.shards += 12; saveMeta(); render(); return; } if (s.enemy.hp <= 0) { state.reward = { type: s.enemyIndex === 1 ? 'relic' : 'card' }; render(); return; } s.turn++; s.energy = 3; s.player.block = 0; draw(s, 5); log(`第 ${s.turn} 回合开始。敌方意图：${intentText(s)}。`); render(); }
 function chooseReward(id) {
   if (id) state.run.deck.push(id);
   state.run.hp = state.battle.player.hp;
   state.run.gold += 25 + state.node * 10;
   state.reward = false;
   if (state.node >= routeColumns.length - 1) {
-    state.screen = 'result'; state.meta.shards += 30; state.meta.talisman += 1; saveMeta();
+    state.screen = 'result'; state.meta.shards += 30; state.meta.talisman += 1; saveMeta(); clearRunSave();
   } else { state.node++; state.screen = 'map'; }
   render();
 }
 function chooseRelic(id) { if (!state.run.relics.includes(id)) state.run.relics.push(id); state.reward = { type: 'card' }; render(); }
-function advanceNode() { state.node++; state.screen = state.node >= routeColumns.length ? 'result' : 'map'; render(); }
-function startRun() { state.screen = 'heroes'; state.heroId = null; state.node = 0; state.run = null; render(); }
+function advanceNode() { state.node++; state.screen = state.node >= routeColumns.length ? 'result' : 'map'; if (state.screen === 'result') clearRunSave(); render(); }
+function startRun() { clearRunSave(); state.screen = 'heroes'; state.heroId = null; state.node = 0; state.run = null; state.battle = null; state.reward = null; render(); }
 function beginBattle(type = 'battle') {
   const enemyIndex = type === 'boss' ? 2 : type === 'elite' ? 1 : 0;
   freshBattle(enemyIndex); state.screen = 'battle'; render();
@@ -119,11 +126,11 @@ function restChoice(choice) {
   if (choice === 'upgrade') { const id = state.run.deck.find(id => ['spear','guard','train','ration','sweep','roar'].includes(id)); if (id) state.run.upgraded[id] = true; }
   advanceNode();
 }
-function render() { app.innerHTML = state.screen === 'title' ? titleView() : state.screen === 'heroes' ? heroView() : state.screen === 'map' ? mapView() : state.screen === 'battle' ? battleView() : state.screen === 'event' ? eventView() : state.screen === 'shop' ? shopView() : state.screen === 'rest' ? restView() : state.screen === 'camp' ? campView() : resultView(); bind(); }
+function render() { saveRun(); app.innerHTML = state.screen === 'title' ? titleView() : state.screen === 'heroes' ? heroView() : state.screen === 'map' ? mapView() : state.screen === 'battle' ? battleView() : state.screen === 'event' ? eventView() : state.screen === 'shop' ? shopView() : state.screen === 'rest' ? restView() : state.screen === 'camp' ? campView() : resultView(); bind(); }
 function shell(content) { return `<div class="game-shell"><div class="screen">${content}</div></div>`; }
 function resources() { return `<div class="resources"><span class="resource">兵革残片 ${state.meta.shards}</span><span class="resource">将校虎符 ${state.meta.talisman}</span>${state.run ? `<span class="resource">铢钱 ${state.run.gold}</span>` : ''}</div>`; }
 function topbar() { return `<header class="topbar"><div class="brand">乱世行军</div>${resources()}</header>`; }
-function titleView() { return shell(`${topbar()}<section class="title"><h1>乱世行军</h1><p>三国 · 肉鸽 · 牌局</p></section><section class="intro-panel"><h2>一局十五分钟的行军</h2><p>选择一名主将，沿着战场路线推进，用每一次出牌决定生死。战败并非终点，带回的兵革残片会留在中军大帐。</p><div class="actions"><button class="primary" data-action="start">开始出征</button><button class="secondary" data-action="camp">中军大帐</button></div></section>`); }
+function titleView() { const saved = hasRunSave(); return shell(`${topbar()}<section class="title"><h1>乱世行军</h1><p>三国 · 肉鸽 · 牌局</p></section><section class="intro-panel"><h2>一局十五分钟的行军</h2><p>选择一名主将，沿着战场路线推进，用每一次出牌决定生死。战败并非终点，带回的兵革残片会留在中军大帐。</p><div class="actions">${saved?'<button class="primary" data-action="continue">继续出征</button>':''}<button class="${saved?'secondary':'primary'}" data-action="start">${saved?'重新开始':'开始出征'}</button><button class="secondary" data-action="camp">中军大帐</button></div>${saved?'<p class="save-hint">已保存未完成的行军，可随时继续。</p>':''}</section>`); }
 function heroView() { return shell(`${topbar()}<h2 class="section-title">选择主将</h2><div class="hero-grid">${Object.entries(heroes).map(([id,h]) => `<article class="hero-card ${state.heroId===id?'selected':''}" data-hero="${id}"><div class="hero-mark">${h.mark}</div><div><h3>${h.name}</h3><p>${h.passive}</p></div></article>`).join('')}</div><div class="actions"><button class="primary" data-action="confirm-hero" ${state.heroId?'':'disabled'}>整军出发</button></div>`); }
 function mapView() { const options = routeColumns[state.node] || []; return shell(`${topbar()}<section class="map-card"><h2>第一章 · 黄巾乱起</h2><p style="text-align:center;color:#6b5b42">主将：${heroes[state.heroId].name}　·　行军进度 ${state.node}/${routeColumns.length - 1}</p><div class="map-line">${routeColumns.map((column,i)=>`<div class="node ${i<state.node?'done':''} ${i===state.node?'active':''}"><button disabled>${i<state.node?'✓':i===state.node?'⚔':'·'}</button><small>${column[0].label}</small></div>`).join('')}</div><h3 class="route-heading">选择下一处行军节点</h3><div class="route-options">${options.map(option=>`<button class="route-option" data-node-type="${option.id}"><span class="route-mark">${option.mark}</span><span><b>${option.label}</b><small>${option.desc}</small></span><span>›</span></button>`).join('')}</div></section>`); }
 function eventView() { return shell(`${topbar()}<section class="map-card node-page"><h2>军帐事件 · 断粮关</h2><p>夜色将深，前方斥候带回三条消息。你要用什么方式处理这场意外？</p><div class="choice-list"><button class="route-option" data-event="supplies"><span class="route-mark">粮</span><span><b>接济难民</b><small>获得 55 铢钱，声望暂且不论。</small></span><span>›</span></button><button class="route-option" data-event="recruit"><span class="route-mark">兵</span><span><b>招募乡勇</b><small>牌组加入列阵防御，但损失 25 兵力。</small></span><span>›</span></button><button class="route-option" data-event="scout"><span class="route-mark">策</span><span><b>派人侦察</b><small>牌组加入厉兵秣马，准备下一场战斗。</small></span><span>›</span></button><button class="route-option" data-event="soul"><span class="route-mark">魂</span><span><b>结识旧部</b><small>获得一枚未拥有将魂；槽位已满时改得 15 铢钱。</small></span><span>›</span></button></div></section>`); }
@@ -138,6 +145,7 @@ function rewardModal() { const cardOptions = ['sweep','train','ration']; if (sta
 function resultView() { const win = state.node >= 3; return shell(`${topbar()}<section class="result-card"><h2>${win?'凯旋入帐':'兵败暂退'}</h2><p style="text-align:center;color:#554b3b;line-height:1.8">${win?'你击破了董卓亲军，黄巾军暂退。':'战场风云未定，带回的残片仍能用于下一次整军。'}</p><div class="stats" style="justify-content:center;margin:20px 0"><span class="stat">本局获得兵革残片 <b>${win?'30':'12'}</b></span><span class="stat">永久总计 <b>${state.meta.shards}</b></span></div><div class="actions"><button class="primary" data-action="start">再次出征</button></div></section>`); }
 function bind() {
   document.querySelectorAll('[data-action="start"]').forEach(b=>b.onclick=startRun);
+  document.querySelector('[data-action="continue"]')?.addEventListener('click',continueRun);
   document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{state.heroId=b.dataset.hero;render();});
   document.querySelector('[data-action="confirm-hero"]')?.addEventListener('click',()=>{state.run={deck:defaultDeck(),gold:80,hp:maxHpForHero(),relics:[],souls:[],upgraded:{}};state.screen='map';render();});
   document.querySelector('[data-action="battle"]')?.addEventListener('click',()=>enterNode('battle'));

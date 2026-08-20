@@ -44,6 +44,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .intro-panel { padding: 24px; max-width: 540px; margin: auto; border-radius: 4px; text-align: center; }
 .intro-panel h2 { margin: 0 0 10px; color: #765221; }
 .intro-panel p { line-height: 1.8; margin: 0; color: #554b3b; }
+.save-hint { color: #8a3526 !important; font-size: 13px; margin-top: 14px !important; }
 .primary, .secondary, .ghost { border-radius: 999px; border: 1px solid var(--gold); padding: 11px 22px; transition: .18s ease; }
 .primary { background: linear-gradient(#f9d987, #b7822d); color: #30200d; font-weight: 700; box-shadow: 0 4px 0 #704b1e; }
 .secondary { background: rgba(35,31,23,.8); color: var(--gold-light); }
