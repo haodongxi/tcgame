@@ -11,27 +11,27 @@ const heroes = {
 };
 
 const cards = {
-  spear: { cardId: 'BASE_ATTACK_001', name: '挺矛直刺', cost: 1, type: 'attack', rarity: 'basic', art: '⚔', image: './assets/cards/base/1.png', desc: '造成 40 点武技伤害', effect: s => hit(s, 40) },
-  guard: { cardId: 'BASE_DEFEND_001', name: '列阵防御', cost: 1, type: 'skill', rarity: 'basic', art: '🛡', image: './assets/cards/base/2.png', desc: '获得 30 点护甲', effect: s => { s.player.block += 30; log('列阵防御：获得 30 护甲。'); } },
-  quick: { cardId: 'BASE_COMMON_001', name: '速攻', cost: 0, type: 'attack', rarity: 'common', art: '⚔', image: './assets/cards/base/3.png', desc: '造成 20 点伤害，抽 1 张牌', effect: s => { hit(s, 20); draw(s, 1); log('速攻：抽 1 张牌。'); } },
-  roar: { cardId: 'ZHANGFEI_001', name: '咆哮突进', cost: 1, type: 'attack', rarity: 'basic', art: '怒', image: './assets/cards/zhangfei/1.png', desc: '造成 60 伤害，获得 2 层狂怒', effect: s => { hit(s, 60); addRage(s, 2); log('咆哮突进：狂怒 +2。'); } },
-  bridge: { cardId: 'ZHANGFEI_002', name: '据水断桥', cost: 2, type: 'skill', rarity: 'basic', art: '桥', image: './assets/cards/zhangfei/2.png', desc: '获得 50 护甲；消耗 3 层狂怒，每层额外 +10 护甲', effect: s => { const spent = Math.min(3, s.player.rage); s.player.rage -= spent; s.player.block += 50 + spent * 10; log(`据水断桥：获得 ${50 + spent * 10} 护甲。`); } },
-  yandang: { cardId: 'ZHANGFEI_003', name: '燕人咆哮', cost: 3, type: 'attack', rarity: 'basic', art: '吼', image: './assets/cards/zhangfei/3.png', desc: '造成 220 伤害，消耗全部狂怒，每层 +12 伤害', effect: s => { const damage = 220 + s.player.rage * 12; hit(s, damage); log(`燕人咆哮：消耗 ${s.player.rage} 层狂怒。`); s.player.rage = 0; } },
-  naked: { cardId: 'ZHANGFEI_004', name: '裸衣死战', cost: 1, type: 'attack', rarity: 'common', art: '血', image: './assets/cards/zhangfei/4.png', desc: '失去 50 最大兵力，获得 5 层狂怒，抽 1 张牌', effect: s => { s.player.maxHp = Math.max(1, s.player.maxHp - 50); s.player.hp = Math.min(s.player.hp, s.player.maxHp); addRage(s, 5); draw(s, 1); log('裸衣死战：最大兵力 -50，抽 1 张牌。'); } },
-  anger: { cardId: 'ZHANGFEI_005', name: '怒发冲冠', cost: 1, type: 'attack', rarity: 'common', art: '怒', image: './assets/cards/zhangfei/5.png', desc: '获得 3 层狂怒，本回合受到伤害 +10%', effect: s => { addRage(s, 3); s.player.vulnerable = true; log('怒发冲冠：狂怒 +3，本回合承伤提高。'); } },
-  bloodDebt: { cardId: 'ZHANGFEI_006', name: '血债血偿', cost: 2, type: 'power', rarity: 'common', art: '血', image: './assets/cards/zhangfei/6.png', desc: '消耗全部狂怒，每层回复 8 兵力', effect: s => { const heal = s.player.rage * 8; s.player.rage = 0; s.player.hp = Math.min(s.player.maxHp, s.player.hp + heal); log(`血债血偿：回复 ${heal} 兵力。`); } },
-  peerless: { cardId: 'ZHANGFEI_007', name: '万夫莫当', cost: 2, type: 'attack', rarity: 'rare', art: '将', image: './assets/cards/zhangfei/7.png', desc: '造成 80 伤害；狂怒≥5时附带破甲', effect: s => { hit(s, 80); if (s.player.rage >= 5) s.enemy.armorBreak = 2; log('万夫莫当：满足狂怒条件时附带破甲。'); } },
-  earthSmash: { cardId: 'ZHANGFEI_008', name: '裂地猛击', cost: 2, type: 'attack', rarity: 'rare', art: '地', image: './assets/cards/zhangfei/8.png', desc: '造成 90 伤害；狂怒≥7时眩晕 1 回合', effect: s => { hit(s, 90); if (s.player.rage >= 7) s.enemy.stunned = 1; log('裂地猛击：满足狂怒条件时眩晕敌人。'); } },
-  frenzySlash: { cardId: 'ZHANGFEI_009', name: '狂刃连斩', cost: 1, type: 'attack', rarity: 'rare', art: '斩', image: './assets/cards/zhangfei/9.png', desc: '消耗 2 层狂怒，连续攻击 3 次，每次 25 伤害', effect: s => { s.player.rage = Math.max(0, s.player.rage - 2); const strikes = s.player.thousandBlades ? 5 : 3; for (let i = 0; i < strikes; i++) if (s.enemy.hp > 0) hit(s, 25); log(`狂刃连斩：攻击 ${strikes} 段。`); } },
-  fangFinisher: { cardId: 'ZHANGFEI_010', name: '裂牙补刀', cost: 0, type: 'attack', rarity: 'rare', art: '牙', image: './assets/cards/zhangfei/10.png', desc: '消耗 1 层狂怒，追加 1 次攻击', effect: s => { if (s.player.rage > 0) { s.player.rage--; hit(s, 35); } else log('裂牙补刀：没有狂怒，无法追加攻击。'); } },
-  shield: { cardId: 'ZHANGFEI_011', name: '立盾拒敌', cost: 1, type: 'skill', rarity: 'rare', art: '盾', image: './assets/cards/zhangfei/11.png', desc: '获得 25 护甲；本回合受击时额外叠加狂怒', effect: s => { s.player.block += 25; s.player.rageOnHit = true; log('立盾拒敌：获得 25 护甲。'); } },
-  counterwall: { cardId: 'ZHANGFEI_012', name: '坚壁反戈', cost: 2, type: 'skill', rarity: 'rare', art: '壁', image: './assets/cards/zhangfei/12.png', desc: '消耗 3 狂怒，获得 40 护甲，本回合受击反弹 30 伤害', effect: s => { const spent = Math.min(3, s.player.rage); s.player.rage -= spent; s.player.block += 40; s.player.reflectDamage = 30; log(`坚壁反戈：获得 40 护甲，消耗 ${spent} 狂怒。`); } },
-  bloodRoar: { cardId: 'ZHANGFEI_013', name: '嗜血咆哮', cost: 2, type: 'attack', rarity: 'rare', art: '嗜', image: './assets/cards/zhangfei/13.png', desc: '造成 80 伤害并按伤害吸血', effect: s => { const dealt = hit(s, 80); const heal = Math.round(dealt * (0.2 + s.player.rage * 0.02)); s.player.hp = Math.min(s.player.maxHp, s.player.hp + heal); log(`嗜血咆哮：回复 ${heal} 兵力。`); } },
-  bloodRush: { cardId: 'ZHANGFEI_014', name: '狂血奔涌', cost: 1, type: 'power', rarity: 'rare', art: '奔', image: './assets/cards/zhangfei/14.png', desc: '本局兵力低于 50% 时，武技伤害 +10%', effect: s => { s.player.bloodRush = true; log('狂血奔涌：低兵力时获得额外武技伤害。'); } },
-  lineage: { cardId: 'ZHANGFEI_015', name: '燕人血脉', cost: 2, type: 'power', rarity: 'legendary', art: '脉', image: './assets/cards/zhangfei/15.png', desc: '本局狂怒上限 15，每层伤害加成提升至 6%', effect: s => { s.player.rageCap = 15; s.player.rageMultiplier = 0.06; log('燕人血脉：狂怒上限提升至 15。'); } },
-  thousandBlades: { cardId: 'ZHANGFEI_016', name: '千刃狂潮', cost: 2, type: 'power', rarity: 'legendary', art: '刃', image: './assets/cards/zhangfei/16.png', desc: '本局狂刃连斩攻击段数 +2', effect: s => { s.player.thousandBlades = true; log('千刃狂潮：狂刃连斩强化。'); } },
-  onePass: { cardId: 'ZHANGFEI_017', name: '一夫当关', cost: 2, type: 'skill', rarity: 'legendary', art: '关', image: './assets/cards/zhangfei/17.png', desc: '消耗全部狂怒，每层获得 12 护甲，本回合反弹 30% 伤害', effect: s => { const armor = s.player.rage * 12; s.player.rage = 0; s.player.reflectRatio = 0.30; s.player.block += armor; log(`一夫当关：获得 ${armor} 护甲，本回合反弹 30% 伤害。`); } },
-  berserk: { cardId: 'ZHANGFEI_018', name: '浴血疯魔', cost: 2, type: 'power', rarity: 'legendary', art: '魔', image: './assets/cards/zhangfei/18.png', desc: '本局兵力低于 50% 时，所有攻击 100% 吸血', effect: s => { s.player.berserk = true; log('浴血疯魔：低兵力时攻击获得强力吸血。'); } },
+  spear: { cardId: 'BASE_ATTACK_001', name: '挺矛直刺', cost: 1, type: 'attack', rarity: 'basic', art: '⚔', image: './public/assets/cards/base/1.png', desc: '造成 40 点武技伤害', effect: s => hit(s, 40) },
+  guard: { cardId: 'BASE_DEFEND_001', name: '列阵防御', cost: 1, type: 'skill', rarity: 'basic', art: '🛡', image: './public/assets/cards/base/2.png', desc: '获得 30 点护甲', effect: s => { s.player.block += 30; log('列阵防御：获得 30 护甲。'); } },
+  quick: { cardId: 'BASE_COMMON_001', name: '速攻', cost: 0, type: 'attack', rarity: 'common', art: '⚔', image: './public/assets/cards/base/3.png', desc: '造成 20 点伤害，抽 1 张牌', effect: s => { hit(s, 20); draw(s, 1); log('速攻：抽 1 张牌。'); } },
+  roar: { cardId: 'ZHANGFEI_001', name: '咆哮突进', cost: 1, type: 'attack', rarity: 'basic', art: '怒', image: './public/assets/cards/zhangfei/1.png', desc: '造成 60 伤害，获得 2 层狂怒', effect: s => { hit(s, 60); addRage(s, 2); log('咆哮突进：狂怒 +2。'); } },
+  bridge: { cardId: 'ZHANGFEI_002', name: '据水断桥', cost: 2, type: 'skill', rarity: 'basic', art: '桥', image: './public/assets/cards/zhangfei/2.png', desc: '获得 50 护甲；消耗 3 层狂怒，每层额外 +10 护甲', effect: s => { const spent = Math.min(3, s.player.rage); s.player.rage -= spent; s.player.block += 50 + spent * 10; log(`据水断桥：获得 ${50 + spent * 10} 护甲。`); } },
+  yandang: { cardId: 'ZHANGFEI_003', name: '燕人咆哮', cost: 3, type: 'attack', rarity: 'basic', art: '吼', image: './public/assets/cards/zhangfei/3.png', desc: '造成 220 伤害，消耗全部狂怒，每层 +12 伤害', effect: s => { const damage = 220 + s.player.rage * 12; hit(s, damage); log(`燕人咆哮：消耗 ${s.player.rage} 层狂怒。`); s.player.rage = 0; } },
+  naked: { cardId: 'ZHANGFEI_004', name: '裸衣死战', cost: 1, type: 'attack', rarity: 'common', art: '血', image: './public/assets/cards/zhangfei/4.png', desc: '失去 50 最大兵力，获得 5 层狂怒，抽 1 张牌', effect: s => { s.player.maxHp = Math.max(1, s.player.maxHp - 50); s.player.hp = Math.min(s.player.hp, s.player.maxHp); addRage(s, 5); draw(s, 1); log('裸衣死战：最大兵力 -50，抽 1 张牌。'); } },
+  anger: { cardId: 'ZHANGFEI_005', name: '怒发冲冠', cost: 1, type: 'attack', rarity: 'common', art: '怒', image: './public/assets/cards/zhangfei/5.png', desc: '获得 3 层狂怒，本回合受到伤害 +10%', effect: s => { addRage(s, 3); s.player.vulnerable = true; log('怒发冲冠：狂怒 +3，本回合承伤提高。'); } },
+  bloodDebt: { cardId: 'ZHANGFEI_006', name: '血债血偿', cost: 2, type: 'power', rarity: 'common', art: '血', image: './public/assets/cards/zhangfei/6.png', desc: '消耗全部狂怒，每层回复 8 兵力', effect: s => { const heal = s.player.rage * 8; s.player.rage = 0; s.player.hp = Math.min(s.player.maxHp, s.player.hp + heal); log(`血债血偿：回复 ${heal} 兵力。`); } },
+  peerless: { cardId: 'ZHANGFEI_007', name: '万夫莫当', cost: 2, type: 'attack', rarity: 'rare', art: '将', image: './public/assets/cards/zhangfei/7.png', desc: '造成 80 伤害；狂怒≥5时附带破甲', effect: s => { hit(s, 80); if (s.player.rage >= 5) s.enemy.armorBreak = 2; log('万夫莫当：满足狂怒条件时附带破甲。'); } },
+  earthSmash: { cardId: 'ZHANGFEI_008', name: '裂地猛击', cost: 2, type: 'attack', rarity: 'rare', art: '地', image: './public/assets/cards/zhangfei/8.png', desc: '造成 90 伤害；狂怒≥7时眩晕 1 回合', effect: s => { hit(s, 90); if (s.player.rage >= 7) s.enemy.stunned = 1; log('裂地猛击：满足狂怒条件时眩晕敌人。'); } },
+  frenzySlash: { cardId: 'ZHANGFEI_009', name: '狂刃连斩', cost: 1, type: 'attack', rarity: 'rare', art: '斩', image: './public/assets/cards/zhangfei/9.png', desc: '消耗 2 层狂怒，连续攻击 3 次，每次 25 伤害', effect: s => { s.player.rage = Math.max(0, s.player.rage - 2); const strikes = s.player.thousandBlades ? 5 : 3; for (let i = 0; i < strikes; i++) if (s.enemy.hp > 0) hit(s, 25); log(`狂刃连斩：攻击 ${strikes} 段。`); } },
+  fangFinisher: { cardId: 'ZHANGFEI_010', name: '裂牙补刀', cost: 0, type: 'attack', rarity: 'rare', art: '牙', image: './public/assets/cards/zhangfei/10.png', desc: '消耗 1 层狂怒，追加 1 次攻击', effect: s => { if (s.player.rage > 0) { s.player.rage--; hit(s, 35); } else log('裂牙补刀：没有狂怒，无法追加攻击。'); } },
+  shield: { cardId: 'ZHANGFEI_011', name: '立盾拒敌', cost: 1, type: 'skill', rarity: 'rare', art: '盾', image: './public/assets/cards/zhangfei/11.png', desc: '获得 25 护甲；本回合受击时额外叠加狂怒', effect: s => { s.player.block += 25; s.player.rageOnHit = true; log('立盾拒敌：获得 25 护甲。'); } },
+  counterwall: { cardId: 'ZHANGFEI_012', name: '坚壁反戈', cost: 2, type: 'skill', rarity: 'rare', art: '壁', image: './public/assets/cards/zhangfei/12.png', desc: '消耗 3 狂怒，获得 40 护甲，本回合受击反弹 30 伤害', effect: s => { const spent = Math.min(3, s.player.rage); s.player.rage -= spent; s.player.block += 40; s.player.reflectDamage = 30; log(`坚壁反戈：获得 40 护甲，消耗 ${spent} 狂怒。`); } },
+  bloodRoar: { cardId: 'ZHANGFEI_013', name: '嗜血咆哮', cost: 2, type: 'attack', rarity: 'rare', art: '嗜', image: './public/assets/cards/zhangfei/13.png', desc: '造成 80 伤害并按伤害吸血', effect: s => { const dealt = hit(s, 80); const heal = Math.round(dealt * (0.2 + s.player.rage * 0.02)); s.player.hp = Math.min(s.player.maxHp, s.player.hp + heal); log(`嗜血咆哮：回复 ${heal} 兵力。`); } },
+  bloodRush: { cardId: 'ZHANGFEI_014', name: '狂血奔涌', cost: 1, type: 'power', rarity: 'rare', art: '奔', image: './public/assets/cards/zhangfei/14.png', desc: '本局兵力低于 50% 时，武技伤害 +10%', effect: s => { s.player.bloodRush = true; log('狂血奔涌：低兵力时获得额外武技伤害。'); } },
+  lineage: { cardId: 'ZHANGFEI_015', name: '燕人血脉', cost: 2, type: 'power', rarity: 'legendary', art: '脉', image: './public/assets/cards/zhangfei/15.png', desc: '本局狂怒上限 15，每层伤害加成提升至 6%', effect: s => { s.player.rageCap = 15; s.player.rageMultiplier = 0.06; log('燕人血脉：狂怒上限提升至 15。'); } },
+  thousandBlades: { cardId: 'ZHANGFEI_016', name: '千刃狂潮', cost: 2, type: 'power', rarity: 'legendary', art: '刃', image: './public/assets/cards/zhangfei/16.png', desc: '本局狂刃连斩攻击段数 +2', effect: s => { s.player.thousandBlades = true; log('千刃狂潮：狂刃连斩强化。'); } },
+  onePass: { cardId: 'ZHANGFEI_017', name: '一夫当关', cost: 2, type: 'skill', rarity: 'legendary', art: '关', image: './public/assets/cards/zhangfei/17.png', desc: '消耗全部狂怒，每层获得 12 护甲，本回合反弹 30% 伤害', effect: s => { const armor = s.player.rage * 12; s.player.rage = 0; s.player.reflectRatio = 0.30; s.player.block += armor; log(`一夫当关：获得 ${armor} 护甲，本回合反弹 30% 伤害。`); } },
+  berserk: { cardId: 'ZHANGFEI_018', name: '浴血疯魔', cost: 2, type: 'power', rarity: 'legendary', art: '魔', image: './public/assets/cards/zhangfei/18.png', desc: '本局兵力低于 50% 时，所有攻击 100% 吸血', effect: s => { s.player.berserk = true; log('浴血疯魔：低兵力时攻击获得强力吸血。'); } },
   train: { name: '厉兵秣马', cost: 1, type: 'skill', art: '卷', desc: '抽 2 张牌', effect: s => { draw(s, 2); log('厉兵秣马：额外抽取 2 张牌。'); } },
   ration: { name: '干粮', cost: 0, type: 'skill', art: '米', desc: '回复 30 兵力', effect: s => { const n = Math.min(30, s.player.maxHp - s.player.hp); s.player.hp += n; log(`干粮：回复 ${n} 兵力。`); } },
   sweep: { name: '横扫千军', cost: 2, type: 'attack', art: '戟', desc: '造成 80 伤害', effect: s => hit(s, 80) },
@@ -65,6 +65,17 @@ const routeColumns = [
   [{ id: 'elite', label: '精英敌将', mark: '将', desc: '击败程远志或周仓，获得稀有牌' }],
   [{ id: 'boss', label: '章节 Boss', mark: '城', desc: '地公将军张宝，胜利后进入下一章' }]
 ];
+function buildChapterRoute(chapter, length) {
+  const labels = chapter === 1
+    ? [['battle', '西凉遭遇战', '⚔'], ['rest', '中军帐', '息'], ['shop', '军械铺', '市'], ['battle', '西凉遭遇战', '⚔'], ['event', '军情事件', '策'], ['battle', '精锐遭遇战', '⚔'], ['rest', '中军帐', '息'], ['elite', '精英敌将', '将']]
+    : [['battle', '曹军遭遇战', '⚔'], ['event', '徐州军情', '策'], ['rest', '中军帐', '息'], ['shop', '军械铺', '市'], ['battle', '陷阵遭遇战', '⚔'], ['rest', '裁汰营', '删'], ['elite', '精英敌将', '将']];
+  return Array.from({ length }, (_, index) => {
+    if (index === length - 1) return [{ id: 'boss', label: chapter === 1 ? '章节 Boss · 华雄' : '章节 Boss · 高顺', mark: '城', desc: '击败章节主将，领取传说级战利品' }];
+    const [id, label, mark] = labels[(index + chapter) % labels.length];
+    return [{ id, label, mark, desc: id === 'battle' ? '击败敌人，从战利品中选择一张牌' : id === 'elite' ? '高风险战斗，胜利后获得稀有战利品' : id === 'shop' ? '购买、删去或调整牌组' : id === 'rest' ? '恢复兵力或强化构筑' : '处理一项军情，换取资源或承担代价' }];
+  });
+}
+const chapterRouteColumns = [routeColumns, buildChapterRoute(1, 17), buildChapterRoute(2, 19)];
 
 const relics = {
   sunzi: { name: '《孙子兵法》', mark: '策', desc: '每场战斗第一回合气力 +1' },
@@ -77,15 +88,15 @@ const souls = {
   liaohua: { name: '廖化', mark: '廖', desc: '最大兵力 +80' }
 };
 
-let state = { screen: 'title', heroId: null, node: 0, meta: loadMeta(), run: null, battle: null, selectedCard: null, selectedIndex: null, reward: null, busy: false, animateDeal: false };
+let state = { screen: 'title', heroId: null, chapter: 0, node: 0, meta: loadMeta(), run: null, battle: null, selectedCard: null, selectedIndex: null, reward: null, busy: false, animateDeal: false };
 function loadMeta() { try { return { shards: 0, talisman: 0, talents: { sharpBlade: 0 }, ...JSON.parse(localStorage.getItem(SAVE_KEY)) }; } catch { return { shards: 0, talisman: 0, talents: { sharpBlade: 0 } }; } }
 function saveMeta() { localStorage.setItem(SAVE_KEY, JSON.stringify(state.meta)); }
 function loadRunSave() { try { const save = JSON.parse(localStorage.getItem(RUN_SAVE_KEY)); return save?.version === RUN_SAVE_VERSION ? save : null; } catch { return null; } }
-function saveRun() { if (!state.run || !['map','battle','event','shop','rest'].includes(state.screen)) return; localStorage.setItem(RUN_SAVE_KEY, JSON.stringify({ version: RUN_SAVE_VERSION, screen: state.screen, heroId: state.heroId, node: state.node, run: state.run, battle: state.battle, selectedCard: state.selectedCard, reward: state.reward })); }
+function saveRun() { if (!state.run || !['map','battle','event','shop','rest'].includes(state.screen)) return; localStorage.setItem(RUN_SAVE_KEY, JSON.stringify({ version: RUN_SAVE_VERSION, screen: state.screen, heroId: state.heroId, chapter: state.chapter || 0, node: state.node, run: state.run, battle: state.battle, selectedCard: state.selectedCard, reward: state.reward })); }
 function clearRunSave() { localStorage.removeItem(RUN_SAVE_KEY); }
 function hasRunSave() { return Boolean(loadRunSave()); }
 function normalizeBattle(battle) { if (!battle) return battle; if (!battle.enemies) battle.enemies = [battle.enemy]; battle.targetIndex = Math.max(0, Math.min(battle.targetIndex ?? 0, battle.enemies.length - 1)); battle.enemy = battle.enemies[battle.targetIndex] || battle.enemies[0]; return battle; }
-function continueRun() { const save = loadRunSave(); if (!save) return; state = { ...state, screen: save.screen, heroId: save.heroId, node: save.node, run: save.run, battle: normalizeBattle(save.battle), selectedCard: save.selectedCard, selectedIndex: null, reward: save.reward }; render(); }
+function continueRun() { const save = loadRunSave(); if (!save) return; state = { ...state, screen: save.screen, heroId: save.heroId, chapter: save.chapter || 0, node: save.node, run: save.run, battle: normalizeBattle(save.battle), selectedCard: save.selectedCard, selectedIndex: null, reward: save.reward }; render(); }
 function defaultDeck() { if (state.heroId === 'zhangfei') return ['spear','spear','spear','spear','spear','guard','guard','guard','guard','yandang']; return ['spear','spear','guard','guard','train','ration','sweep', ...heroes[state.heroId].skillIds]; }
 function upgraded(id) { return Boolean(state.run?.upgraded?.[id]); }
 function valueFor(id, normal, improved) { return upgraded(id) ? improved : normal; }
@@ -109,13 +120,26 @@ const enemyGroups = {
   ],
   boss: [[{ name: '地公将军·张宝', hp: 800, attack: 55, boss: true }, { name: '黄巾符使', hp: 200, attack: 25, blockGain: 10 }, { name: '黄巾符使', hp: 200, attack: 25, blockGain: 10 }]]
 };
+const chapterEnemyGroups = [
+  enemyGroups,
+  {
+    normal: [[{ name: '西凉枪兵', hp: 120, attack: 30 }, { name: '西凉枪兵', hp: 120, attack: 30 }, { name: '西凉枪兵', hp: 120, attack: 30 }], [{ name: '西凉重盾手', hp: 200, attack: 25, blockGain: 25 }, { name: '西凉重盾手', hp: 200, attack: 25, blockGain: 25 }]],
+    elite: [[{ name: '西凉骁将·胡轸', hp: 600, attack: 45, blockGain: 20 }, { name: '西凉亲兵', hp: 120, attack: 25 }, { name: '西凉亲兵', hp: 120, attack: 25 }]],
+    boss: [[{ name: '骁骑校尉·华雄', hp: 1200, attack: 80, boss: true }, { name: '西凉近卫', hp: 300, attack: 35 }, { name: '西凉近卫', hp: 300, attack: 35 }]]
+  },
+  {
+    normal: [[{ name: '曹军盾兵', hp: 150, attack: 25, blockGain: 20 }, { name: '曹军盾兵', hp: 150, attack: 25, blockGain: 20 }, { name: '曹军弓手', hp: 100, attack: 30 }, { name: '曹军弓手', hp: 100, attack: 30 }], [{ name: '陷阵营死士', hp: 180, attack: 40 }, { name: '陷阵营死士', hp: 180, attack: 40 }, { name: '陷阵营死士', hp: 180, attack: 40 }]],
+    elite: [[{ name: '曹军校尉·于禁', hp: 750, attack: 55, blockGain: 20 }, { name: '曹军甲士', hp: 180, attack: 30 }, { name: '曹军甲士', hp: 180, attack: 30 }]],
+    boss: [[{ name: '陷阵营统帅·高顺', hp: 1800, attack: 90, boss: true }, { name: '陷阵营统领', hp: 400, attack: 40 }, { name: '陷阵营统领', hp: 400, attack: 40 }]]
+  }
+];
 function cloneEnemy(enemy) { return { ...enemy, maxHp: enemy.hp, block: 0, burn: 0, berserk: false, stunned: 0 }; }
-function enemyGroupFor(index) { const pool = index === 2 ? enemyGroups.boss : index === 1 ? enemyGroups.elite : enemyGroups.normal; return pool[Math.floor(Math.random() * pool.length)].map(cloneEnemy); }
+function enemyGroupFor(index, chapter = 0) { const groups = chapterEnemyGroups[chapter] || enemyGroups; const pool = index === 2 ? groups.boss : index === 1 ? groups.elite : groups.normal; return pool[Math.floor(Math.random() * pool.length)].map(cloneEnemy); }
 function syncTarget(s, index = s.targetIndex) { const next = s.enemies.findIndex((enemy, i) => enemy.hp > 0 && i === index); const fallback = next >= 0 ? next : s.enemies.findIndex(enemy => enemy.hp > 0); s.targetIndex = fallback >= 0 ? fallback : 0; s.enemy = s.enemies[s.targetIndex]; return s.enemy; }
 function freshBattle(enemyIndex = 0) {
   const hero = heroes[state.heroId];
   const deck = state.run.deck;
-  const enemies = enemyGroupFor(enemyIndex);
+  const enemies = enemyGroupFor(enemyIndex, state.chapter || 0);
   const maxHp = maxHpForHero();
   state.battle = { turn: 1, energy: state.run.relics.includes('sunzi') ? 4 : 3, player: { name: hero.name, hp: Math.min(state.run.hp ?? maxHp, maxHp), maxHp, block: 0, rage: 0, rageCap: 10, rageMultiplier: 0.05, mystery: 0, dragon: 0, played: 0, attackCardsPlayed: 0, evade: false }, enemies, targetIndex: 0, enemy: enemies[0], drawPile: shuffle(deck), hand: [], discard: [], logs: [], enemyIndex, relicTriggered: false };
   draw(state.battle, 5);
@@ -142,14 +166,16 @@ function chooseReward(id) {
   state.run.hp = state.battle.player.hp;
   state.run.gold += 25 + state.node * 10;
   state.reward = false;
-  if (state.node >= routeColumns.length - 1) {
-    state.screen = 'result'; state.meta.shards += 30; state.meta.talisman += 1; saveMeta(); clearRunSave();
+  const routes = chapterRouteColumns[state.chapter || 0] || routeColumns;
+  if (state.node >= routes.length - 1) {
+    if ((state.chapter || 0) < chapterRoutes.length - 1) { state.chapter = (state.chapter || 0) + 1; state.node = 0; state.screen = 'map'; }
+    else { state.screen = 'result'; state.meta.shards += 30; state.meta.talisman += 1; saveMeta(); clearRunSave(); }
   } else { state.node++; state.screen = 'map'; }
   render();
 }
 function chooseRelic(id) { if (!state.run.relics.includes(id)) state.run.relics.push(id); state.reward = { type: 'card' }; render(); }
-function advanceNode() { state.node++; state.screen = state.node >= routeColumns.length ? 'result' : 'map'; if (state.screen === 'result') clearRunSave(); render(); }
-function startRun() { clearRunSave(); state.screen = 'heroes'; state.heroId = null; state.node = 0; state.run = null; state.battle = null; state.reward = null; render(); }
+function advanceNode() { const routes = chapterRouteColumns[state.chapter || 0] || routeColumns; if (state.node >= routes.length - 1) { if ((state.chapter || 0) < chapterRoutes.length - 1) { state.chapter = (state.chapter || 0) + 1; state.node = 0; state.screen = 'map'; } else { state.screen = 'result'; clearRunSave(); } } else { state.node++; state.screen = 'map'; } render(); }
+function startRun() { clearRunSave(); state.screen = 'heroes'; state.heroId = null; state.chapter = 0; state.node = 0; state.run = null; state.battle = null; state.reward = null; render(); }
 function beginBattle(type = 'battle') {
   const enemyIndex = type === 'boss' ? 2 : type === 'elite' ? 1 : 0;
   freshBattle(enemyIndex); state.screen = 'battle'; render();
@@ -225,7 +251,7 @@ function resources() { return `<div class="resources"><span class="resource">兵
 function topbar() { return `<header class="topbar"><div class="brand">乱世行军</div>${resources()}</header>`; }
 function titleView() { const saved = hasRunSave(); return shell(`${topbar()}<section class="title"><h1>乱世行军</h1><p>三国 · 肉鸽 · 牌局</p></section><section class="intro-panel"><h2>一局十五分钟的行军</h2><p>选择一名主将，沿着战场路线推进，用每一次出牌决定生死。战败并非终点，带回的兵革残片会留在中军大帐。</p><div class="actions">${saved?'<button class="primary" data-action="continue">继续出征</button>':''}<button class="${saved?'secondary':'primary'}" data-action="start">${saved?'重新开始':'开始出征'}</button><button class="secondary" data-action="camp">中军大帐</button></div>${saved?'<p class="save-hint">已保存未完成的行军，可随时继续。</p>':''}</section>`); }
 function heroView() { return shell(`${topbar()}<h2 class="section-title">选择主将</h2><div class="hero-grid">${Object.entries(heroes).map(([id,h]) => `<article class="hero-card ${state.heroId===id?'selected':''}" data-hero="${id}"><div class="hero-mark">${h.mark}</div><div><h3>${h.name}</h3><p>${h.passive}</p></div></article>`).join('')}</div><div class="actions"><button class="primary" data-action="confirm-hero" ${state.heroId?'':'disabled'}>整军出发</button></div>`); }
-function mapView() { const options = routeColumns[state.node] || []; const start = Math.max(0, Math.min(state.node - 2, routeColumns.length - 5)); const visible = routeColumns.slice(start, start + 5); return shell(`${topbar()}<section class="map-card"><h2>${chapterRoutes[0].name}</h2><p style="text-align:center;color:#6b5b42">主将：${heroes[state.heroId].name}　·　行军进度 ${state.node}/${routeColumns.length - 1}　·　主题：${chapterRoutes[0].theme}</p><div class="map-line">${visible.map((column,i)=>{const index=start+i;return `<div class="node ${index<state.node?'done':''} ${index===state.node?'active':''}"><button disabled>${index<state.node?'✓':index===state.node?'⚔':'·'}</button><small>${column[0].label}</small></div>`;}).join('')}</div><h3 class="route-heading">选择下一处行军节点</h3><div class="route-options">${options.map(option=>`<button class="route-option" data-node-type="${option.id}"><span class="route-mark">${option.mark}</span><span><b>${option.label}</b><small>${option.desc}</small></span><span>›</span></button>`).join('')}</div></section>`); }
+function mapView() { const chapter = state.chapter || 0; const routes = chapterRouteColumns[chapter] || routeColumns; const options = routes[state.node] || []; const start = Math.max(0, Math.min(state.node - 2, routes.length - 5)); const visible = routes.slice(start, start + 5); return shell(`${topbar()}<section class="map-card"><h2>${chapterRoutes[chapter].name}</h2><p style="text-align:center;color:#6b5b42">主将：${heroes[state.heroId].name}　·　章节 ${chapter + 1}/3　·　行军进度 ${state.node}/${routes.length - 1}　·　主题：${chapterRoutes[chapter].theme}</p><div class="map-line">${visible.map((column,i)=>{const index=start+i;return `<div class="node ${index<state.node?'done':''} ${index===state.node?'active':''}"><button disabled>${index<state.node?'✓':index===state.node?'⚔':'·'}</button><small>${column[0].label}</small></div>`;}).join('')}</div><h3 class="route-heading">选择下一处行军节点</h3><div class="route-options">${options.map(option=>`<button class="route-option" data-node-type="${option.id}"><span class="route-mark">${option.mark}</span><span><b>${option.label}</b><small>${option.desc}</small></span><span>›</span></button>`).join('')}</div></section>`); }
 function eventView() { return shell(`${topbar()}<section class="map-card node-page"><h2>军帐事件 · 断粮关</h2><p>夜色将深，前方斥候带回三条消息。你要用什么方式处理这场意外？</p><div class="choice-list"><button class="route-option" data-event="supplies"><span class="route-mark">粮</span><span><b>接济难民</b><small>获得 55 铢钱，声望暂且不论。</small></span><span>›</span></button><button class="route-option" data-event="recruit"><span class="route-mark">兵</span><span><b>招募乡勇</b><small>牌组加入列阵防御，但损失 25 兵力。</small></span><span>›</span></button><button class="route-option" data-event="scout"><span class="route-mark">策</span><span><b>派人侦察</b><small>牌组加入厉兵秣马，准备下一场战斗。</small></span><span>›</span></button><button class="route-option" data-event="soul"><span class="route-mark">魂</span><span><b>结识旧部</b><small>获得一枚未拥有将魂；槽位已满时改得 15 铢钱。</small></span><span>›</span></button></div></section>`); }
 function shopView() { const offers = [['spear',50],['quick',75],['roar',60],['bridge',80]]; const removals = state.run.deck.map((id,i)=>`<button class="remove-card" data-remove-index="${i}" ${state.run.deck.length<=8?'disabled':''}>${cards[id].name} <span>删去 +10</span></button>`).join(''); return shell(`${topbar()}<section class="map-card node-page"><h2>军械铺 · 洛阳旧营</h2><p>铢钱：<b>${state.run.gold}</b>　基础牌 50 金，速攻 75 金；也可删除一张牌。</p><div class="shop-grid">${offers.map(([id,price])=>`<button class="shop-offer" data-buy-id="${id}" data-buy-price="${price}"><span class="route-mark">${cards[id].art}</span><b>${cards[id].name}</b><small>${cards[id].rarity === 'basic' ? '基础牌' : '张飞专属牌'}</small><em>${price} 铢钱</em></button>`).join('')}</div><h3 class="route-heading">裁汰一张牌（至少保留 8 张）</h3><div class="remove-list">${removals}</div><div class="actions"><button class="primary" data-action="leave-node">离开军械铺</button></div></section>`); }
 function restView() { return shell(`${topbar()}<section class="map-card node-page"><h2>休整 · 山中古驿</h2><p>篝火尚暖。你可以恢复兵力，精简牌组，或强化一张核心牌。</p><div class="choice-list"><button class="route-option" data-rest="heal"><span class="route-mark">药</span><span><b>休养生息</b><small>回复 70 兵力，不超过上限。</small></span><span>›</span></button><button class="route-option" data-rest="thin"><span class="route-mark">简</span><span><b>轻装行军</b><small>移除一张基础牌，下一回合更容易抽到核心牌。</small></span><span>›</span></button><button class="route-option" data-rest="upgrade"><span class="route-mark">锻</span><span><b>打磨战法</b><small>强化一张基础牌，本局同名牌都会变强。</small></span><span>›</span></button></div></section>`); }
