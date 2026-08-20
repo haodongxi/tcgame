@@ -439,17 +439,37 @@ run('自用卡牌预览提供使用按钮，攻击牌预览提示选择敌人', 
   `));
   assert.match(result.self, /data-action="use-card"/);
   assert.match(result.self, /立即生效/);
-  assert.match(result.enemy, /请选择敌方目标使用/);
+  assert.match(result.enemy, /点敌人确认/);
   assert.doesNotMatch(result.enemy, /data-action="use-card"/);
 });
 
-run('卡牌预览具备手机竖屏适配约束', () => {
+run('卡牌预览是轻量浮层，不参与战斗布局', () => {
   assert.match(indexSource, /name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/);
   assert.match(stylesSource, /@media \(max-width:\s*560px\)/);
   assert.match(stylesSource, /\.hand[^}]*overflow-x:\s*auto/);
-  assert.match(stylesSource, /\.card-preview[^}]*display:\s*flex/);
+  assert.match(stylesSource, /\.card-preview[^}]*position:\s*absolute/);
+  assert.match(stylesSource, /\.card-preview[^}]*z-index:\s*6/);
+  assert.match(stylesSource, /\.card-preview[^}]*width:\s*max-content/);
+  assert.match(stylesSource, /\.card-preview[^}]*transform:\s*translateX\(-50%\)/);
   assert.match(stylesSource, /\.card-preview-copy[^}]*min-width:\s*0/);
   assert.match(stylesSource, /\.card-preview-copy small[^}]*text-overflow:\s*ellipsis/);
+});
+
+run('战斗页面禁止纵向滚动，只允许日志纵向滚动', () => {
+  assert.match(stylesSource, /\.screen:has\(\.battle-screen\)[^}]*height:\s*100dvh/);
+  assert.match(stylesSource, /\.screen:has\(\.battle-screen\)[^}]*overflow:\s*hidden/);
+  assert.match(stylesSource, /\.log-panel[^}]*overflow:\s*auto/);
+  assert.match(stylesSource, /\.hand[^}]*overflow-y:\s*hidden/);
+  assert.match(stylesSource, /\.battle-screen[^}]*grid-template-rows:\s*auto auto minmax\(0, 1fr\) auto auto/);
+  assert.match(stylesSource, /max-height:\s*700px/);
+});
+
+run('手机竖屏的敌方、我方和手牌标题区域保持紧凑', () => {
+  assert.match(stylesSource, /\.enemy-bar \.avatar[^}]*width:\s*27px/);
+  assert.match(stylesSource, /\.enemy-bar \.bar[^}]*height:\s*5px/);
+  assert.match(stylesSource, /\.player-panel \.avatar[^}]*width:\s*40px/);
+  assert.match(stylesSource, /\.player-panel \.stat[^}]*font-size:\s*10px/);
+  assert.match(stylesSource, /\.hand-title[^}]*line-height:\s*20px/);
 });
 
 run('卡牌展示包含稳定索引、名称和 WebP 图片', () => {
