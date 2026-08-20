@@ -109,8 +109,9 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .stat b { color: #3a2712; }
 .hand-area { min-width: 0; }
 .hand-title { display: flex; justify-content: space-between; align-items: center; color: var(--gold-light); letter-spacing: .2em; margin: 4px 4px 7px; }
-.hand { display: flex; align-items: stretch; gap: 8px; height: clamp(126px, 22dvh, 176px); min-height: 126px; overflow-x: auto; overscroll-behavior-x: contain; padding: 10px 4px 16px; scrollbar-color: var(--gold) #2b271f; }
-.card { flex: 0 0 102px; width: 102px; height: 100%; min-height: 0; border: 2px solid #d6b567; border-radius: 7px; padding: 8px; background: linear-gradient(155deg, #f7edd7, #c8b48d); color: #302218; position: relative; text-align: left; box-shadow: 0 5px 12px rgba(0,0,0,.25); transition: transform .18s, box-shadow .18s, opacity .18s; animation: card-deal .32s both; animation-delay: calc(var(--deal-index, 0) * 45ms); }
+.hand { display: flex; align-items: stretch; gap: 8px; height: clamp(156px, 24dvh, 190px); min-height: 156px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-x; padding: 10px 4px 16px; scrollbar-color: var(--gold) #2b271f; }
+.card { flex: 0 0 102px; width: 102px; height: 100%; min-height: 0; border: 2px solid #d6b567; border-radius: 7px; padding: 8px; background: linear-gradient(155deg, #f7edd7, #c8b48d); color: #302218; position: relative; text-align: left; box-shadow: 0 5px 12px rgba(0,0,0,.25); transition: transform .18s, box-shadow .18s, opacity .18s; touch-action: manipulation; }
+.card.deal-card { animation: card-deal .32s both; animation-delay: calc(var(--deal-index, 0) * 45ms); }
 .card.attack { background: linear-gradient(155deg, #f2d9c8, #a74b3e); color: #fff4e9; }
 .card.skill { background: linear-gradient(155deg, #f3e7c6, #ae8f4f); }
 .card.selected { transform: translateY(-10px) scale(1.04); z-index: 2; box-shadow: 0 0 0 3px var(--gold-light), 0 12px 20px rgba(0,0,0,.35); }
@@ -118,8 +119,8 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .card.is-playing { animation: card-play .22s ease-in both; pointer-events: none; }
 .cost { display: inline-grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: var(--gold-light); color: #39230d; font-weight: 700; border: 1px solid #8e6426; }
 .card-art { text-align: center; font-size: 30px; padding: 12px 0 8px; filter: grayscale(.35); }
-.card strong { display: block; font-size: 15px; white-space: nowrap; }
-.card small { display: block; font-size: 11px; line-height: 1.35; margin-top: 5px; opacity: .88; }
+.card strong { display: block; min-height: 2.4em; font-size: 15px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere; }
+.card small { display: block; font-size: 11px; line-height: 1.35; margin-top: 5px; opacity: .88; white-space: normal; overflow-wrap: anywhere; }
 .battle-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .turn { color: var(--muted); font-size: 13px; }
 .modal-backdrop { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 20px; background: rgba(8,7,5,.72); }
@@ -197,9 +198,9 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .turn { max-width: 58%; line-height: 1.35; }
   .battle-actions .primary { flex: 0 0 auto; padding-inline: 16px; }
   .screen:has(.battle-screen) { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-  .hand { height: clamp(118px, 21dvh, 150px); min-height: 118px; gap: 6px; }
+  .hand { height: clamp(186px, 25dvh, 206px); min-height: 186px; gap: 6px; }
   .card { flex-basis: 88px; width: 88px; padding: 6px; }
   .card-art { font-size: 24px; padding: 7px 0 4px; }
   .card strong { font-size: 13px; }
-  .card small { font-size: 10px; }
+  .card small { font-size: 11px; line-height: 1.3; }
 }
