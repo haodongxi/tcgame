@@ -61,6 +61,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 
 .map-card, .result-card { padding: 22px; border-radius: 4px; margin-top: 8vh; }
 .map-card h2, .result-card h2 { margin-top: 0; color: #765221; text-align: center; }
+.map-summary { color: #6b5b42; text-align: center; line-height: 1.7; }
 .map-line { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-items: center; margin: 28px 0; }
 .node { position: relative; text-align: center; }
 .node::after { content: ""; position: absolute; top: 19px; left: 60%; width: 80%; height: 2px; background: #aa8a53; z-index: 0; }
@@ -69,6 +70,11 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .node.done button { background: var(--cinnabar); color: white; }
 .node.active button { background: var(--gold-light); box-shadow: 0 0 0 4px rgba(168,59,44,.18); }
 .node small { display: block; margin-top: 7px; color: #6b5b42; font-size: 12px; }
+.node-types { position: relative; z-index: 1; display: grid; gap: 3px; margin-top: 7px; }
+.node-type { display: block; color: #796444; font-size: 10px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.node.done .node-type { color: #9a3728; }
+.node.active .node-type { color: #6b4a1e; font-weight: 700; }
+.path-review { margin: 8px 0 18px; padding: 9px 11px; border-left: 3px solid var(--gold); background: rgba(180,139,66,.1); color: #6b5b42; font-size: 12px; line-height: 1.6; }
 .route-heading { color: #765221; text-align: center; margin: 28px 0 12px; }
 .route-options, .choice-list { display: grid; gap: 10px; }
 .route-option { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 13px 15px; border: 1px solid rgba(118,82,33,.35); border-radius: 5px; background: rgba(255,250,235,.72); color: #382718; text-align: left; transition: .18s; }
