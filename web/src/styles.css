@@ -118,9 +118,8 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .card.enhanced { border-color: #e8bd56; box-shadow: inset 0 0 0 2px rgba(255,208,85,.35), 0 5px 12px rgba(0,0,0,.25); }
 .card.is-playing { animation: card-play .22s ease-in both; pointer-events: none; }
 .cost { display: inline-grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: var(--gold-light); color: #39230d; font-weight: 700; border: 1px solid #8e6426; }
-.card-art { text-align: center; font-size: 30px; padding: 12px 0 8px; filter: grayscale(.35); }
+.card-art { display: grid; flex: 1 1 auto; place-items: center; text-align: center; font-size: 30px; padding: 12px 0 8px; filter: grayscale(.35); }
 .card strong { display: block; flex: 0 0 auto; min-height: 2.4em; font-size: 15px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere; }
-.card small { display: block; flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(118,82,33,.6) transparent; font-size: 11px; line-height: 1.35; margin-top: 5px; opacity: .88; white-space: normal; overflow-wrap: anywhere; touch-action: pan-y; }
 .battle-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .turn { color: var(--muted); font-size: 13px; }
 .modal-backdrop { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 20px; background: rgba(8,7,5,.72); }
@@ -157,7 +156,6 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .card { flex-basis: 116px; width: 116px; padding: 10px; }
   .card-art { font-size: 36px; padding: 18px 0 10px; }
   .card strong { font-size: 16px; }
-  .card small { font-size: 12px; }
   .map-card, .result-card { width: min(100%, 820px); margin-left: auto; margin-right: auto; }
   .hero-grid { gap: 18px; }
   .hero-card { padding: 20px; }
@@ -202,5 +200,4 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .card { flex-basis: 88px; width: 88px; padding: 6px; }
   .card-art { font-size: 24px; padding: 7px 0 4px; }
   .card strong { font-size: 13px; }
-  .card small { font-size: 11px; line-height: 1.3; }
 }
