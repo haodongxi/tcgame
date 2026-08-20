@@ -86,9 +86,9 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .remove-card { padding: 7px 9px; border: 1px solid rgba(118,82,33,.28); border-radius: 999px; background: rgba(255,250,235,.75); color: #55452f; font-size: 12px; }
 .remove-card span { color: #9a3728; margin-left: 4px; }
 
-.battle-screen { display: grid; grid-template-rows: auto minmax(190px, 1fr) auto auto; gap: 10px; padding-bottom: 10px; }
+.battle-screen { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 10px; padding-bottom: 10px; }
 .screen:has(.battle-screen) { height: 100dvh; min-height: 0; overflow: hidden; }
-.battle-screen { height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto auto; }
+.battle-screen { height: 100%; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
 .enemy-bar, .player-panel { position: relative; z-index: 1; border-radius: 4px; }
 .enemy-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(22,20,16,.9); border: 1px solid rgba(212,166,78,.75); }
 .avatar { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #91816b, #211d18 65%); border: 2px solid var(--gold); font-size: 26px; }
@@ -147,7 +147,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 @media (min-width: 900px) {
   .game-shell { background-attachment: fixed; }
   .screen { width: min(100% - 48px, 1080px); padding: 28px 0 40px; }
-  .battle-screen { grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 14px; }
+  .battle-screen { grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 14px; }
   .enemy-bar { padding: 16px 20px; }
   .log-panel { padding: 22px 28px; }
   .log-line { font-size: 15px; padding: 9px 0; }
@@ -187,7 +187,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .shop-offer { grid-template-columns: auto 1fr auto; justify-items: start; text-align: left; align-items: center; }
   .shop-offer small { grid-column: 2 / -1; }
   .shop-offer em { grid-column: 2 / -1; }
-  .battle-screen { gap: 8px; }
+  .battle-screen { grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 8px; }
   .log-panel { padding: 14px; }
   .log-panel h2 { font-size: 18px; }
   .log-line { font-size: 13px; }
