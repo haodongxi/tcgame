@@ -125,6 +125,8 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .reward-grid .card { width: 100%; }
 .relic-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .relic-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 8px; border: 1px solid #b48b42; border-radius: 999px; background: rgba(180,139,66,.14); color: #6b4a1e; font-size: 12px; }
+.soul-chip, .bond-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 8px; border: 1px solid #8b6d9c; border-radius: 999px; background: rgba(139,109,156,.14); color: #59416a; font-size: 12px; }
+.bond-chip { border-color: #a24a37; background: rgba(162,74,55,.12); color: #8a3526; }
 .relic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .relic-offer { display: grid; justify-items: center; gap: 8px; padding: 16px 10px; border: 1px solid #b48b42; border-radius: 5px; background: linear-gradient(155deg, #f8edd2, #d8c398); color: #382718; text-align: center; }
 .relic-offer:hover { transform: translateY(-3px); border-color: var(--cinnabar); }
