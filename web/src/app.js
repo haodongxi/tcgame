@@ -82,18 +82,24 @@ const relics = {
   qinggang: { name: '青釭剑', mark: '剑', desc: '每场战斗第一次武技伤害 +10' },
   ration: { name: '行军干粮', mark: '粮', desc: '每场战斗开始回复 20 兵力' }
 };
+const cardBacks = {
+  gold: { name: '金边行军', mark: '金', unlock: true },
+  zhangfei: { name: '燕人怒焰', mark: '怒', unlock: 'first-win' },
+  veteran: { name: '百战玄甲', mark: '甲', unlock: 'veteran' }
+};
 const souls = {
   zhouchang: { name: '周仓', mark: '周', desc: '武技伤害 +5%' },
   xushu: { name: '徐庶', mark: '徐', desc: '计策伤害 +10%' },
   liaohua: { name: '廖化', mark: '廖', desc: '最大兵力 +80' }
 };
 
-let state = { screen: 'title', chapter: 0, node: 0, heroId: null, meta: loadMeta(), run: null, battle: null, selectedCard: null, selectedIndex: null, reward: null, busy: false, animateDeal: false };
-function loadMeta() { try { const saved = JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; return { ...saved, talents: { sharpBlade: 0, ...(saved.talents || {}) }, stats: { runs: 0, battlesWon: 0, chaptersCleared: 0, wins: 0, ...(saved.stats || {}) }, achievements: Array.isArray(saved.achievements) ? saved.achievements : [] }; } catch { return { shards: 0, talisman: 0, talents: { sharpBlade: 0 }, stats: { runs: 0, battlesWon: 0, chaptersCleared: 0, wins: 0 }, achievements: [] }; } }
+let state = { screen: 'title', chapter: 0, node: 0, heroId: null, meta: loadMeta(), run: null, battle: null, selectedCard: null, selectedIndex: null, reward: null, busy: false, animateDeal: false, transition: '' };
+function loadMeta() { try { const saved = JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; return { ...saved, shards: Number.isFinite(saved.shards) ? saved.shards : 0, talisman: Number.isFinite(saved.talisman) ? saved.talisman : 0, cardBack: saved.cardBack || 'gold', talents: { sharpBlade: 0, ...(saved.talents || {}) }, stats: { runs: 0, battlesWon: 0, chaptersCleared: 0, wins: 0, ...(saved.stats || {}) }, achievements: Array.isArray(saved.achievements) ? saved.achievements : [] }; } catch { return { shards: 0, talisman: 0, cardBack: 'gold', talents: { sharpBlade: 0 }, stats: { runs: 0, battlesWon: 0, chaptersCleared: 0, wins: 0 }, achievements: [] }; } }
 function saveMeta() { localStorage.setItem(SAVE_KEY, JSON.stringify(state.meta)); }
 function unlockAchievement(id) { if (!state.meta.achievements.includes(id)) { state.meta.achievements.push(id); return true; } return false; }
-function recordBattleWon() { state.meta.stats.battlesWon++; if (state.meta.stats.battlesWon >= 10) unlockAchievement('veteran'); }
-function recordChapterCleared() { state.meta.stats.chaptersCleared++; if (state.meta.stats.chaptersCleared >= 3) unlockAchievement('three-chapters'); }
+function recordBattleWon() { state.meta.stats.battlesWon++; if (state.meta.stats.battlesWon >= 10 && unlockAchievement('veteran')) state.meta.shards += 20; }
+function recordChapterCleared() { state.meta.stats.chaptersCleared++; if (state.meta.stats.chaptersCleared >= 3 && unlockAchievement('three-chapters')) state.meta.talisman += 1; }
+function chooseCardBack(id) { const back = cardBacks[id]; if (!back || (back.unlock !== true && !state.meta.achievements.includes(back.unlock))) return; state.meta.cardBack = id; saveMeta(); render(); }
 function loadRunSave() { try { const save = JSON.parse(localStorage.getItem(RUN_SAVE_KEY)); return save?.version === RUN_SAVE_VERSION ? save : null; } catch { return null; } }
 function saveRun() { if (!state.run || !['map','battle','event','shop','rest'].includes(state.screen)) return; localStorage.setItem(RUN_SAVE_KEY, JSON.stringify({ version: RUN_SAVE_VERSION, screen: state.screen, heroId: state.heroId, chapter: state.chapter || 0, node: state.node, run: state.run, battle: state.battle, selectedCard: state.selectedCard, reward: state.reward })); }
 function clearRunSave() { localStorage.removeItem(RUN_SAVE_KEY); }
@@ -192,9 +198,9 @@ function finishBattleReward() {
   if (state.node >= routes.length - 1) {
     recordChapterCleared();
     if ((state.chapter || 0) < chapterRoutes.length - 1) { state.chapter = (state.chapter || 0) + 1; state.node = 0; state.screen = 'map'; }
-    else { state.screen = 'result'; state.meta.shards += 30; state.meta.talisman += 1; state.meta.stats.wins++; unlockAchievement('first-win'); saveMeta(); clearRunSave(); }
+    else { state.screen = 'result'; state.meta.shards += 30; state.meta.talisman += 1; state.meta.stats.wins++; if (unlockAchievement('first-win')) state.meta.cardBack = 'zhangfei'; saveMeta(); clearRunSave(); }
   } else { state.node++; state.screen = 'map'; }
-  render();
+  state.transition = 'screen-enter'; render();
 }
 function chooseReward(id) {
   const rewardType = state.reward?.type;
@@ -203,11 +209,11 @@ function chooseReward(id) {
   finishBattleReward();
 }
 function chooseRelic(id) { if (!state.run.relics.includes(id)) state.run.relics.push(id); if (state.reward?.type === 'boss-relic') finishBattleReward(); else { state.reward = { type: 'card' }; render(); } }
-function advanceNode() { const routes = chapterRouteColumns[state.chapter || 0] || routeColumns; if (state.node >= routes.length - 1) { if ((state.chapter || 0) < chapterRoutes.length - 1) { state.chapter = (state.chapter || 0) + 1; state.node = 0; state.screen = 'map'; } else { state.screen = 'result'; clearRunSave(); } } else { state.node++; state.screen = 'map'; } render(); }
+function advanceNode() { const routes = chapterRouteColumns[state.chapter || 0] || routeColumns; if (state.node >= routes.length - 1) { if ((state.chapter || 0) < chapterRoutes.length - 1) { state.chapter = (state.chapter || 0) + 1; state.node = 0; state.screen = 'map'; } else { state.screen = 'result'; clearRunSave(); } } else { state.node++; state.screen = 'map'; } state.transition = 'screen-enter'; render(); }
 function startRun() { clearRunSave(); state.screen = 'heroes'; state.heroId = null; state.chapter = 0; state.node = 0; state.run = null; state.battle = null; state.reward = null; render(); }
 function beginBattle(type = 'battle') {
   const enemyIndex = type === 'boss' ? 2 : type === 'elite' ? 1 : 0;
-  freshBattle(enemyIndex); state.screen = 'battle'; render();
+  freshBattle(enemyIndex); state.screen = 'battle'; state.transition = 'screen-enter'; render();
 }
 function currentRoute() { return chapterRouteColumns[state.chapter || 0] || routeColumns; }
 function isReachableNode(type) { return Boolean(currentRoute()[state.node]?.some(option => option.id === type)); }
@@ -242,7 +248,7 @@ function restChoice(choice) {
   if (choice === 'upgrade') { const id = state.run.deck.find(id => ['spear','guard','quick','roar','bridge','yandang'].includes(id)); if (id) state.run.upgraded[id] = true; }
   advanceNode();
 }
-function render() { const handScroll = document.querySelector('.hand')?.scrollLeft || 0; saveRun(); app.innerHTML = state.screen === 'title' ? titleView() : state.screen === 'heroes' ? heroView() : state.screen === 'map' ? mapView() : state.screen === 'battle' ? battleView() : state.screen === 'event' ? eventView() : state.screen === 'shop' ? shopView() : state.screen === 'rest' ? restView() : state.screen === 'camp' ? campView() : resultView(); bind(); const hand = document.querySelector('.hand'); if (hand) hand.scrollLeft = handScroll; if (state.screen === 'battle') scrollBattleLogToBottom(); state.animateDeal = false; }
+function render() { const handScroll = document.querySelector('.hand')?.scrollLeft || 0; saveRun(); app.innerHTML = state.screen === 'title' ? titleView() : state.screen === 'heroes' ? heroView() : state.screen === 'map' ? mapView() : state.screen === 'battle' ? battleView() : state.screen === 'event' ? eventView() : state.screen === 'shop' ? shopView() : state.screen === 'rest' ? restView() : state.screen === 'camp' ? campView() : resultView(); bind(); const hand = document.querySelector('.hand'); if (hand) hand.scrollLeft = handScroll; if (state.screen === 'battle') scrollBattleLogToBottom(); state.animateDeal = false; state.transition = ''; }
 function scrollBattleLogToBottom() {
   const logPanel = document.querySelector('#battle-log');
   if (logPanel) logPanel.scrollTop = logPanel.scrollHeight;
@@ -281,7 +287,7 @@ function refreshBattleParts({ keepHand = false, removedIndex = -1 } = {}) {
   saveRun();
   state.animateDeal = false;
 }
-function shell(content) { return `<div class="game-shell"><div class="screen">${content}</div></div>`; }
+function shell(content) { return `<div class="game-shell"><div class="screen ${state.transition}">${content}</div></div>`; }
 function resources() { return `<div class="resources"><span class="resource">兵革残片 ${state.meta.shards}</span><span class="resource">将校虎符 ${state.meta.talisman}</span>${state.run ? `<span class="resource">铢钱 ${state.run.gold}</span>` : ''}</div>`; }
 function topbar() { return `<header class="topbar"><div class="brand">乱世行军</div>${resources()}</header>`; }
 function titleView() { const saved = hasRunSave(); return shell(`${topbar()}<section class="title"><h1>乱世行军</h1><p>三国 · 肉鸽 · 牌局</p></section><section class="intro-panel"><h2>一局十五分钟的行军</h2><p>选择一名主将，沿着战场路线推进，用每一次出牌决定生死。战败并非终点，带回的兵革残片会留在中军大帐。</p><div class="actions">${saved?'<button class="primary" data-action="continue">继续出征</button>':''}<button class="${saved?'secondary':'primary'}" data-action="start">${saved?'重新开始':'开始出征'}</button><button class="secondary" data-action="camp">中军大帐</button></div>${saved?'<p class="save-hint">已保存未完成的行军，可随时继续。</p>':''}</section>`); }
@@ -290,7 +296,7 @@ function mapView() { const chapter = state.chapter || 0; const routes = chapterR
 function eventView() { return shell(`${topbar()}<section class="map-card node-page"><h2>军帐事件 · 断粮关</h2><p>夜色将深，前方斥候带回三条消息。你要用什么方式处理这场意外？</p><div class="choice-list"><button class="route-option" data-event="supplies"><span class="route-mark">粮</span><span><b>接济难民</b><small>获得 55 铢钱，声望暂且不论。</small></span><span>›</span></button><button class="route-option" data-event="recruit"><span class="route-mark">兵</span><span><b>招募乡勇</b><small>牌组加入列阵防御，但损失 25 兵力。</small></span><span>›</span></button><button class="route-option" data-event="scout"><span class="route-mark">策</span><span><b>派人侦察</b><small>牌组加入厉兵秣马，准备下一场战斗。</small></span><span>›</span></button><button class="route-option" data-event="soul"><span class="route-mark">魂</span><span><b>结识旧部</b><small>获得一枚未拥有将魂；槽位已满时改得 15 铢钱。</small></span><span>›</span></button></div></section>`); }
 function shopView() { const offers = [['spear',50],['quick',75],['roar',60],['bridge',80]]; const removals = state.run.deck.map((id,i)=>`<button class="remove-card" data-remove-index="${i}" ${state.run.deck.length<=8?'disabled':''}>${cards[id].name} <span>删去 +10</span></button>`).join(''); return shell(`${topbar()}<section class="map-card node-page"><h2>军械铺 · 洛阳旧营</h2><p>铢钱：<b>${state.run.gold}</b>　基础牌 50 金，速攻 75 金；也可删除一张牌。</p><div class="shop-grid">${offers.map(([id,price])=>`<button class="shop-offer" data-buy-id="${id}" data-buy-price="${price}"><span class="route-mark">${cards[id].art}</span><b>${cards[id].name}</b><small>${cards[id].rarity === 'basic' ? '基础牌' : '张飞专属牌'}</small><em>${price} 铢钱</em></button>`).join('')}</div><h3 class="route-heading">裁汰一张牌（至少保留 8 张）</h3><div class="remove-list">${removals}</div><div class="actions"><button class="primary" data-action="leave-node">离开军械铺</button></div></section>`); }
 function restView() { return shell(`${topbar()}<section class="map-card node-page"><h2>休整 · 山中古驿</h2><p>篝火尚暖。你可以恢复兵力，精简牌组，或强化一张核心牌。</p><div class="choice-list"><button class="route-option" data-rest="heal"><span class="route-mark">药</span><span><b>休养生息</b><small>回复 70 兵力，不超过上限。</small></span><span>›</span></button><button class="route-option" data-rest="thin"><span class="route-mark">简</span><span><b>轻装行军</b><small>移除一张基础牌，下一回合更容易抽到核心牌。</small></span><span>›</span></button><button class="route-option" data-rest="upgrade"><span class="route-mark">锻</span><span><b>打磨战法</b><small>强化一张基础牌，本局同名牌都会变强。</small></span><span>›</span></button></div></section>`); }
-function campView() { const level = state.meta.talents?.sharpBlade || 0; const costs = [40, 80, 140]; const cost = costs[level]; const stats = state.meta.stats || {}; const achievements = state.meta.achievements || []; return shell(`${topbar()}<section class="map-card node-page"><h2>中军大帐 · 韬略阁</h2><p>永久材料会在每次出征后保留。当前锐兵等级：<b>${level}/3</b></p><div class="talent-card"><span class="route-mark">锐</span><div><h3>锐兵</h3><p>所有主将兵力上限与初始兵力 +${level * 50}。</p><small>${level >= 3 ? '已达到最高等级' : `下一等级消耗 ${cost} 兵革残片`}</small></div><button class="primary" data-talent="sharpBlade" ${level >= 3 || state.meta.shards < cost ? 'disabled' : ''}>${level >= 3 ? '已满级' : '升级'}</button></div><h3 class="route-heading">行军统计</h3><div class="stats camp-stats"><span class="stat">出征 <b>${stats.runs || 0}</b></span><span class="stat">胜场 <b>${stats.battlesWon || 0}</b></span><span class="stat">章节完成 <b>${stats.chaptersCleared || 0}</b></span><span class="stat">三章通关 <b>${stats.wins || 0}</b></span></div><h3 class="route-heading">成就</h3><div class="achievement-list"><span class="achievement-chip ${achievements.includes('first-win') ? 'unlocked' : ''}">初次凯旋</span><span class="achievement-chip ${achievements.includes('veteran') ? 'unlocked' : ''}">百战老兵</span><span class="achievement-chip ${achievements.includes('three-chapters') ? 'unlocked' : ''}">三章行军</span></div><div class="actions"><button class="secondary" data-action="back-title">返回</button></div></section>`); }
+function campView() { const level = state.meta.talents?.sharpBlade || 0; const costs = [40, 80, 140]; const cost = costs[level]; const stats = state.meta.stats || {}; const achievements = state.meta.achievements || []; return shell(`${topbar()}<section class="map-card node-page"><h2>中军大帐 · 韬略阁</h2><p>永久材料会在每次出征后保留。当前锐兵等级：<b>${level}/3</b></p><div class="talent-card"><span class="route-mark">锐</span><div><h3>锐兵</h3><p>所有主将兵力上限与初始兵力 +${level * 50}。</p><small>${level >= 3 ? '已达到最高等级' : `下一等级消耗 ${cost} 兵革残片`}</small></div><button class="primary" data-talent="sharpBlade" ${level >= 3 || state.meta.shards < cost ? 'disabled' : ''}>${level >= 3 ? '已满级' : '升级'}</button></div><h3 class="route-heading">行军统计</h3><div class="stats camp-stats"><span class="stat">出征 <b>${stats.runs || 0}</b></span><span class="stat">胜场 <b>${stats.battlesWon || 0}</b></span><span class="stat">章节完成 <b>${stats.chaptersCleared || 0}</b></span><span class="stat">三章通关 <b>${stats.wins || 0}</b></span></div><h3 class="route-heading">成就</h3><div class="achievement-list"><span class="achievement-chip ${achievements.includes('first-win') ? 'unlocked' : ''}">初次凯旋</span><span class="achievement-chip ${achievements.includes('veteran') ? 'unlocked' : ''}">百战老兵</span><span class="achievement-chip ${achievements.includes('three-chapters') ? 'unlocked' : ''}">三章行军</span></div><h3 class="route-heading">卡背</h3><div class="card-back-list">${Object.entries(cardBacks).map(([id,back])=>{const unlocked=back.unlock===true||achievements.includes(back.unlock);return `<button class="card-back-option ${state.meta.cardBack===id?'selected':''}" data-card-back="${id}" ${unlocked?'':'disabled'}><span>${back.mark}</span><b>${back.name}</b><small>${unlocked?'已解锁':'完成对应成就解锁'}</small></button>`;}).join('')}</div><div class="actions"><button class="secondary" data-action="back-title">返回</button></div></section>`); }
 function cardView(id, index, reward=false) { const c=cards[id]; const mark = upgraded(id) ? ' · 强化' : ''; const dealClass = !reward && state.animateDeal ? 'deal-card' : ''; const art = c.image ? `<img class="card-image" src="${c.image}" alt="${c.name}">` : `<span class="card-fallback-art">${c.art}</span><strong>${c.name}${mark}</strong>`; return `<button class="card ${c.type} ${dealClass} ${upgraded(id)?'enhanced':''} ${state.selectedIndex===index&&!reward?'selected':''}" aria-label="${c.name}" style="--deal-index:${index}" data-card="${id}" data-index="${index}">${c.image ? art : `<span class="cost">${c.cost}</span>${art}`}</button>`; }
 function relicView() { return state.run.relics.map(id=>`<span class="relic-chip" title="${relics[id].desc}">${relics[id].mark} ${relics[id].name}</span>`).join(''); }
 function soulView() { return state.run.souls.map(id=>`<span class="soul-chip" title="${souls[id].desc}">${souls[id].mark} ${souls[id].name}</span>`).join(''); }
@@ -322,6 +328,7 @@ function bind() {
   document.querySelector('[data-action="camp"]')?.addEventListener('click',()=>{state.screen='camp';render();});
   document.querySelector('[data-action="back-title"]')?.addEventListener('click',()=>{state.screen='title';render();});
   document.querySelectorAll('[data-talent]').forEach(b=>b.onclick=()=>buyTalent(b.dataset.talent));
+  document.querySelectorAll('[data-card-back]').forEach(b=>b.onclick=()=>chooseCardBack(b.dataset.cardBack));
   app.onclick = event => { if (state.selectedIndex !== null && !event.target.closest('.card, [data-target-index]')) cancelSelection(); };
   document.onkeydown = event => { if (event.key === 'Escape') cancelSelection(); };
   refreshSelectionVisuals();

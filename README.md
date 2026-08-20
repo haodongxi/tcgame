@@ -41,8 +41,19 @@ python3 -m http.server 4173
 - 张飞狂怒、诸葛亮神机、赵云龙胆与精英/Boss 行为差异
 - 将魂获取、将魂被动与主将羁绊
 - 当前局自动存档与刷新后继续出征
+- 三章路线、章节 Boss 独有机制、状态徽标与路径回顾
+- 章节结算、成就、永久统计和可切换卡背
 
 本阶段暂不包含音效、线上部署或微信小程序适配。
+
+## 验收检查
+
+```bash
+/Users/haodongsheng/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node --check web/src/app.js
+git diff --check
+```
+
+详细版本记录见 `doc/MVP10三章路线与GitHub静态资源修复.md` 至 `doc/最终文档校对与MVP收尾.md`。
 
 ## 响应式适配
 
